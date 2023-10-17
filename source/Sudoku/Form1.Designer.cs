@@ -73,9 +73,9 @@
             this.pictureBox1.Size = new System.Drawing.Size(1088, 809);
             this.pictureBox1.TabIndex = 1;
             this.pictureBox1.TabStop = false;
-            this.pictureBox1.SizeChanged += new System.EventHandler(this.pictureBox1_SizeChanged);
-            this.pictureBox1.Click += new System.EventHandler(this.pictureBox1_Click);
-            this.pictureBox1.Paint += new System.Windows.Forms.PaintEventHandler(this.pictureBox1_Paint);
+            this.pictureBox1.SizeChanged += new System.EventHandler(this.PictureBox1_SizeChanged);
+            this.pictureBox1.Click += new System.EventHandler(this.PictureBox1_Click);
+            this.pictureBox1.Paint += new System.Windows.Forms.PaintEventHandler(this.PictureBox1_Paint);
             // 
             // menuStrip1
             // 
@@ -115,14 +115,14 @@
             this.toolStripMenuItem2.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.N)));
             this.toolStripMenuItem2.Size = new System.Drawing.Size(232, 26);
             this.toolStripMenuItem2.Text = "&New";
-            this.toolStripMenuItem2.Click += new System.EventHandler(this.toolStripMenuItem2_Click);
+            this.toolStripMenuItem2.Click += new System.EventHandler(this.ToolStripMenuItem2_Click);
             // 
             // solvePuzzleToolStripMenuItem
             // 
             this.solvePuzzleToolStripMenuItem.Name = "solvePuzzleToolStripMenuItem";
             this.solvePuzzleToolStripMenuItem.Size = new System.Drawing.Size(232, 26);
             this.solvePuzzleToolStripMenuItem.Text = "Solve puzzle";
-            this.solvePuzzleToolStripMenuItem.Click += new System.EventHandler(this.solvePuzzleToolStripMenuItem_Click_1);
+            this.solvePuzzleToolStripMenuItem.Click += new System.EventHandler(this.SolvePuzzleToolStripMenuItem_Click_1);
             // 
             // toolStripMenuItem4
             // 
@@ -137,7 +137,7 @@
             this.openToolStripMenuItem1.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
             this.openToolStripMenuItem1.Size = new System.Drawing.Size(232, 26);
             this.openToolStripMenuItem1.Text = "&Open";
-            this.openToolStripMenuItem1.Click += new System.EventHandler(this.openToolStripMenuItem1_Click);
+            this.openToolStripMenuItem1.Click += new System.EventHandler(this.OpenToolStripMenuItem1_Click);
             // 
             // saveToolStripMenuItem1
             // 
@@ -147,7 +147,7 @@
             this.saveToolStripMenuItem1.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
             this.saveToolStripMenuItem1.Size = new System.Drawing.Size(232, 26);
             this.saveToolStripMenuItem1.Text = "&Save As";
-            this.saveToolStripMenuItem1.Click += new System.EventHandler(this.saveToolStripMenuItem1_Click);
+            this.saveToolStripMenuItem1.Click += new System.EventHandler(this.SaveToolStripMenuItem1_Click);
             // 
             // toolStripSeparator2
             // 
@@ -160,7 +160,7 @@
             this.lockNumbersToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.L)));
             this.lockNumbersToolStripMenuItem.Size = new System.Drawing.Size(232, 26);
             this.lockNumbersToolStripMenuItem.Text = "Lock numbers";
-            this.lockNumbersToolStripMenuItem.Click += new System.EventHandler(this.lockNumbersToolStripMenuItem_Click_1);
+            this.lockNumbersToolStripMenuItem.Click += new System.EventHandler(this.LockNumbersToolStripMenuItem_Click_1);
             // 
             // newToolStripMenuItem1
             // 
@@ -168,7 +168,7 @@
             this.newToolStripMenuItem1.Name = "newToolStripMenuItem1";
             this.newToolStripMenuItem1.Size = new System.Drawing.Size(232, 26);
             this.newToolStripMenuItem1.Text = "&Clear";
-            this.newToolStripMenuItem1.Click += new System.EventHandler(this.newToolStripMenuItem1_Click);
+            this.newToolStripMenuItem1.Click += new System.EventHandler(this.NewToolStripMenuItem1_Click);
             // 
             // toolStripSeparator
             // 
@@ -180,7 +180,7 @@
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
             this.exitToolStripMenuItem.Size = new System.Drawing.Size(232, 26);
             this.exitToolStripMenuItem.Text = "E&xit";
-            this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
+            this.exitToolStripMenuItem.Click += new System.EventHandler(this.ExitToolStripMenuItem_Click);
             // 
             // editToolStripMenuItem
             // 
@@ -207,7 +207,7 @@
             this.copyToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.C)));
             this.copyToolStripMenuItem.Size = new System.Drawing.Size(271, 26);
             this.copyToolStripMenuItem.Text = "&Copy values";
-            this.copyToolStripMenuItem.Click += new System.EventHandler(this.copyToolStripMenuItem_Click);
+            this.copyToolStripMenuItem.Click += new System.EventHandler(this.CopyToolStripMenuItem_Click);
             // 
             // pasteToolStripMenuItem
             // 
@@ -217,7 +217,7 @@
             this.pasteToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.V)));
             this.pasteToolStripMenuItem.Size = new System.Drawing.Size(271, 26);
             this.pasteToolStripMenuItem.Text = "&Paste values";
-            this.pasteToolStripMenuItem.Click += new System.EventHandler(this.pasteToolStripMenuItem_Click);
+            this.pasteToolStripMenuItem.Click += new System.EventHandler(this.PasteToolStripMenuItem_Click);
             // 
             // toolStripMenuItem1
             // 
@@ -230,7 +230,7 @@
             this.showPossibleValuesToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F1;
             this.showPossibleValuesToolStripMenuItem.Size = new System.Drawing.Size(271, 26);
             this.showPossibleValuesToolStripMenuItem.Text = "Show candidates";
-            this.showPossibleValuesToolStripMenuItem.Click += new System.EventHandler(this.showPossibleValuesToolStripMenuItem_Click);
+            this.showPossibleValuesToolStripMenuItem.Click += new System.EventHandler(this.ShowPossibleValuesToolStripMenuItem_Click);
             // 
             // showPairsToolStripMenuItem
             // 
@@ -238,7 +238,7 @@
             this.showPairsToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F2;
             this.showPairsToolStripMenuItem.Size = new System.Drawing.Size(271, 26);
             this.showPairsToolStripMenuItem.Text = "Show pairs";
-            this.showPairsToolStripMenuItem.Click += new System.EventHandler(this.showPairsToolStripMenuItem_Click);
+            this.showPairsToolStripMenuItem.Click += new System.EventHandler(this.ShowPairsToolStripMenuItem_Click);
             // 
             // toolStripMenuItem3
             // 
@@ -251,7 +251,7 @@
             this.fillOnlyPossibleValuesToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F3;
             this.fillOnlyPossibleValuesToolStripMenuItem.Size = new System.Drawing.Size(271, 26);
             this.fillOnlyPossibleValuesToolStripMenuItem.Text = "Fill only possible values";
-            this.fillOnlyPossibleValuesToolStripMenuItem.Click += new System.EventHandler(this.fillOnlyPossibleValuesToolStripMenuItem_Click);
+            this.fillOnlyPossibleValuesToolStripMenuItem.Click += new System.EventHandler(this.FillOnlyPossibleValuesToolStripMenuItem_Click);
             // 
             // findSingleNumbersToolStripMenuItem
             // 
@@ -259,7 +259,7 @@
             this.findSingleNumbersToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F4;
             this.findSingleNumbersToolStripMenuItem.Size = new System.Drawing.Size(271, 26);
             this.findSingleNumbersToolStripMenuItem.Text = "Find single numbers";
-            this.findSingleNumbersToolStripMenuItem.Click += new System.EventHandler(this.findSingleNumbersToolStripMenuItem_Click);
+            this.findSingleNumbersToolStripMenuItem.Click += new System.EventHandler(this.FindSingleNumbersToolStripMenuItem_Click);
             // 
             // toolStripMenuItem6
             // 
@@ -272,7 +272,7 @@
             this.markAllPairsGuessesToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F5;
             this.markAllPairsGuessesToolStripMenuItem.Size = new System.Drawing.Size(271, 26);
             this.markAllPairsGuessesToolStripMenuItem.Text = "Mark all pairs guesses";
-            this.markAllPairsGuessesToolStripMenuItem.Click += new System.EventHandler(this.markAllPairsGuessesToolStripMenuItem_Click);
+            this.markAllPairsGuessesToolStripMenuItem.Click += new System.EventHandler(this.MarkAllPairsGuessesToolStripMenuItem_Click);
             // 
             // helpToolStripMenuItem
             // 
@@ -289,7 +289,7 @@
             this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
             this.aboutToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
             this.aboutToolStripMenuItem.Text = "&About...";
-            this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
+            this.aboutToolStripMenuItem.Click += new System.EventHandler(this.AboutToolStripMenuItem_Click);
             // 
             // toolStripMenuItem5
             // 
@@ -302,7 +302,7 @@
             this.AutomFindSingles.Name = "AutomFindSingles";
             this.AutomFindSingles.Size = new System.Drawing.Size(224, 26);
             this.AutomFindSingles.Text = "Autom. find singles";
-            this.AutomFindSingles.Click += new System.EventHandler(this.automFindSinglesToolStripMenuItem_Click);
+            this.AutomFindSingles.Click += new System.EventHandler(this.AutomFindSinglesToolStripMenuItem_Click);
             // 
             // openFileDialog1
             // 
