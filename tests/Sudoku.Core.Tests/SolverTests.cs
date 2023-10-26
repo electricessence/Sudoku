@@ -156,7 +156,7 @@ internal class SolverTests
 	//	static bool Solved(Dictionary<string, string> values)
 	//	{
 	//		var unitsolved = new Func<IEnumerable<string>, bool>(unit => !new HashSet<string>(unit.Select((s) => values[s])).Intersect(new HashSet<string>(digits.Select(x => x.ToString()))).Any());
-	//		return values != null && All(unitlist.Select((unit) => unitsolved(unit)));
+	//		return values is not null && All(unitlist.Select((unit) => unitsolved(unit)));
 	//	}
 
 	//static double Measure(

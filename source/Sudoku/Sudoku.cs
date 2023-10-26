@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
+﻿using System.Text;
 
 //https://sudoku.ironmonger.com/home/home.tpl <-- display puzzle difficulty! :)
 
@@ -622,7 +616,7 @@ public class Sudoku
 			return;
 		}
 
-		if (CalculateSolution() == null)
+		if (CalculateSolution() is null)
 		{
 			_single_found = false;
 			ComputeErors();
@@ -739,39 +733,39 @@ public class Sudoku
 		// save nums, fixes, user_calc and guesses
 
 		var str = new StringBuilder();
-		str.AppendLine(GetGameString());
+		str.AppendChars(GetGameString()).AppendLine();
 
-		var fixstr = "";
-		var calc = "";
-		var gues = "";
+		var fixstr = new List<char>();
+		var calc = new List<char>();
+		var gues = new List<char>();
 		for (int i = 0; i < 9; i++)
 		{
 			for (int j = 0; j < 9; j++)
 			{
-				fixstr += _fixes[i, j].ToString();
+				fixstr.Add(_fixes[i, j]);
 
 				foreach (var c in _user_candidates[i, j])
 				{
-					calc += c.ToString();
+					calc.Add(c);
 				}
 
-				calc += ',';
+				calc.Add(',');
 
 				foreach (var c in _user_guesses[i, j])
 				{
-					gues += c.ToString();
+					gues.Add(c);
 				}
 
-				gues += '|';
+				gues.Add('|');
 			}
 
-			calc += Environment.NewLine;
-			gues += Environment.NewLine;
+			calc.AddRange(Environment.NewLine);
+			gues.AddRange(Environment.NewLine);
 		}
 
-		str.AppendLine(fixstr);
-		str.AppendLine(calc);
-		str.AppendLine(gues);
+		str.AppendChars(fixstr).AppendLine();
+		str.AppendChars(calc).AppendLine();
+		str.AppendChars(gues).AppendLine();
 
 		foreach (var un in _undos)
 		{
@@ -834,19 +828,17 @@ public class Sudoku
 		}
 	}
 
-	public string GetGameString()
+	public IEnumerable<char> GetGameString()
 	{
-		string res = "";
-
 		for (int i = 0; i < 9; i++)
 		{
 			for (int j = 0; j < 9; j++)
 			{
-				res += _nums[i, j].ToString();
+				var c = (char)(_nums[i, j] + '0');
+				if (c == '0') c = '.';
+				yield return c;
 			}
 		}
-
-		return res.Replace("0", ".");
 	}
 
 	public bool SetGameString(string game)
@@ -1180,7 +1172,7 @@ public class Sudoku
 		}
 
 		var solution = CalculateSolution();
-		if (solution == null)
+		if (solution is null)
 		{
 			DisplayError("This sudoku does not have solution :(");
 			return;

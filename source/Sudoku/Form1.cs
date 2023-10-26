@@ -1,8 +1,5 @@
 ﻿// Ignore Spelling: Sudoku
 
-using System;
-using System.Windows.Forms;
-
 #nullable disable
 
 namespace Sudoku;
@@ -73,8 +70,7 @@ public partial class Form1 : Form
 			"\nBackspace for undo operation!",
 			"About Sudoku 1.0", MessageBoxButtons.OK);
 
-	private void CopyToolStripMenuItem_Click(object sender, EventArgs e) => Clipboard.SetText(_sudoku.GetGameString());
-
+	private void CopyToolStripMenuItem_Click(object sender, EventArgs e) => Clipboard.SetText(_sudoku.GetGameString().ToStringFromChars());
 	private void PasteToolStripMenuItem_Click(object sender, EventArgs e)
 	{
 		var text = Clipboard.GetText();

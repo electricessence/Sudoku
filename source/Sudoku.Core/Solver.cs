@@ -89,7 +89,7 @@ public static class Solver
 		return values
 	*/
 	/// <summary>Given a string of 81 digits (or . or 0 or -), return a dict of {cell:values}</summary>
-	public static IDictionary<string, string>? ParseGrid(string grid)
+	public static IDictionary<string, string>? ParseGrid(IEnumerable<char> grid)
 	{
 		//var grid2 = from c in grid where "0.-123456789".Contains(c) select c;
 		var values = squares.ToDictionary(s => s, _ => digits); //To start, every square can be any digit
@@ -99,10 +99,8 @@ public static class Solver
 			var s = sd[0];
 			var d = sd[1];
 
-			if (digits.Contains(d) && Assign(values, s, d) == null)
-			{
+			if (digits.Contains(d) && Assign(values, s, d) is null)
 				return null;
-			}
 		}
 
 		return values;
@@ -123,15 +121,11 @@ public static class Solver
 	/// <summary>Using depth-first search and propagation, try all possible values.</summary>
 	public static IDictionary<string, string>? Search(IDictionary<string, string>? values)
 	{
-		if (values == null)
-		{
+		if (values is null)
 			return null; // Failed earlier
-		}
 
 		if (All(from s in squares select values[s].Length == 1 ? "" : null))
-		{
-			return values; // Solved!
-		}
+			return values;
 
 		// Chose the unfilled square s with the fewest possibilities
 		var s2 = (from s in squares where values[s].Length > 1 orderby values[s].Length ascending select s).First();
@@ -153,9 +147,9 @@ public static class Solver
 	static IDictionary<string, string>? Assign(IDictionary<string, string> values, string s, string d)
 	{
 		if (All(
-				from d2 in values[s]
-				where d2.ToString() != d
-				select Eliminate(values, s, d2.ToString())))
+			from d2 in values[s]
+			where d2.ToString() != d
+			select Eliminate(values, s, d2.ToString())))
 		{
 			return values;
 		}
@@ -205,9 +199,7 @@ public static class Solver
 			//If there is only one value (d2) left in square, remove it from peers
 			var d2 = values[s];
 			if (!All(from s2 in peers[s] select Eliminate(values, s2, d2)))
-			{
 				return null;
-			}
 		}
 
 		//Now check the places where d appears in the units of s
@@ -218,12 +210,11 @@ public static class Solver
 			{
 				case 0:
 					return null;
+
 				case 1:
 					// d can only be in one place in unit; assign it there
 					if (Assign(values, dplaces.First(), d) is null)
-					{
 						return null;
-					}
 
 					break;
 			}
@@ -241,10 +232,8 @@ public static class Solver
 	{
 		foreach (var e in seq)
 		{
-			if (e == null)
-			{
+			if (e is null)
 				return false;
-			}
 		}
 		return true;
 	}
@@ -259,10 +248,8 @@ public static class Solver
 	{
 		foreach (var e in seq)
 		{
-			if (e != null)
-			{
+			if (e is not null)
 				return e;
-			}
 		}
 		return default!;
 	}
@@ -279,17 +266,12 @@ public static class Solver
 	static string Center(this string s, int width)
 	{
 		var n = width - s.Length;
-		if (n <= 0)
-		{
-			return s;
-		}
+		if (n <= 0) return s;
 
 		var half = n / 2;
 
 		if (n % 2 > 0 && width % 2 > 0)
-		{
 			half++;
-		}
 
 		return new string(' ', half) + s + new String(' ', n - half);
 	}
@@ -309,9 +291,7 @@ public static class Solver
 	public static IDictionary<string, string> PrintBoard(IDictionary<string, string> values)
 	{
 		if (values is null)
-		{
 			throw new ArgumentNullException(nameof(values));
-		}
 
 		var width = 1 + (from s in squares select values[s].Length).Max();
 		var line = "\n" + String.Join("+", Enumerable.Repeat(new String('-', width * 3), 3).ToArray());
