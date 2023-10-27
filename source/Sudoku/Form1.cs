@@ -165,6 +165,7 @@ public partial class Form1 : Form
 		DialogResult answer = MessageBox.Show(
 				"Lock numbers?", "Sudoku",
 				MessageBoxButtons.YesNo);
+
 		if (answer == DialogResult.No)
 		{
 			return;

@@ -1,14 +1,44 @@
-﻿using System;
+﻿using Sudoku.Core;
+using System;
+using System.Collections.Generic;
 
 namespace Sudoku;
 
 // https://gist.github.com/fabiosoft/b41067106bebf1498399f4eb9826e4de
 
-public static class Generator
+public class Generator : GeneratorBase
 {
-	static int[,] grid = new int[9, 9];
-	//static string s;
-	static void Init(ref int[,] grid)
+	public Generator(Func<int, int, int> nextIntFunction)
+		: base(nextIntFunction) { }
+
+	public Generator(Random rnd)
+		: base(rnd) { }
+
+	public Generator(int seed)
+		: base(seed) { }
+
+	public Generator() { }
+
+	public override IEnumerable<char> Generate()
+	{
+		var grid = new int[9, 9];
+
+		Init(grid);
+		Update(grid, 10);
+
+		for (int x = 0; x < 9; x++)
+		{
+			for (int y = 0; y < 9; y++)
+			{
+				yield return grid[x, y].ToNumChar();
+			}
+		}
+	}
+
+	public static IEnumerable<char> GenNew()
+		=> new Generator().Generate();
+
+	static void Init(int[,] grid)
 	{
 		for (int i = 0; i < 9; i++)
 		{
@@ -19,7 +49,7 @@ public static class Generator
 		}
 	}
 
-	static void ChangeTwoCell(ref int[,] grid, int findValue1, int findValue2)
+	static void ChangeTwoCell(int[,] grid, int findValue1, int findValue2)
 	{
 		int xParm1, yParm1, xParm2, yParm2;
 		xParm1 = yParm1 = xParm2 = yParm2 = 0;
@@ -36,6 +66,7 @@ public static class Generator
 							xParm1 = i + j;
 							yParm1 = k + z;
 						}
+
 						if (grid[i + j, k + z] == findValue2)
 						{
 							xParm2 = i + j;
@@ -43,38 +74,18 @@ public static class Generator
 						}
 					}
 				}
+
 				grid[xParm1, yParm1] = findValue2;
 				grid[xParm2, yParm2] = findValue1;
 			}
 		}
 	}
 
-	static void Update(ref int[,] grid, int shuffleLevel)
+	void Update(int[,] grid, int shuffleLevel)
 	{
 		for (int repeat = 0; repeat < shuffleLevel; repeat++)
 		{
-			Random rand = new(Guid.NewGuid().GetHashCode());
-			Random rand2 = new(Guid.NewGuid().GetHashCode());
-			ChangeTwoCell(ref grid, rand.Next(1, 10), rand2.Next(1, 10));
+			ChangeTwoCell(grid, NextInt(1, 10), NextInt(1, 10));
 		}
-	}
-
-	public static string Run()
-	{
-		grid = new int[9, 9];
-
-		Init(ref grid);
-		Update(ref grid, 10);
-
-		var res = "";
-		for (int x = 0; x < 9; x++)
-		{
-			for (int y = 0; y < 9; y++)
-			{
-				res += grid[x, y].ToString();
-			}
-		}
-
-		return res;
 	}
 }

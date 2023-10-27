@@ -66,7 +66,7 @@ public static class Solver
 	 *   return z
 	 * }
 	 */
-	static string[][] Zip(string[] A, string[] B)
+	static string[][] Zip(ReadOnlySpan<string> A, ReadOnlySpan<string> B)
 	{
 		var n = Math.Min(A.Length, B.Length);
 		string[][] sd = new string[n][];

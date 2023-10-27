@@ -21,14 +21,14 @@ public class UndoData
 
 	public UndoData(string str)
 	{
-		y = int.Parse(str[0].ToString());
-		x = int.Parse(str[1].ToString());
-		val = int.Parse(str[2].ToString());
+		y = str[0] - '0';
+		x = str[1] - '0';
+		val = str[2] - '0';
 
 		// note: if number is wrong, enum will be this number!
-		what = (What)int.Parse(str[3].ToString());
+		what = (What)(str[3] - '0');
 
-		add = int.Parse(str[4].ToString()) != 0;
+		add = str[4] - '0' != 0;
 	}
 
 	public override string ToString()

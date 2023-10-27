@@ -148,9 +148,7 @@ public class Sudoku
 			|| new_hity < 0 || new_hity > 8);
 
 		if (!field_is_selected)
-		{
 			return;
-		}
 
 		hitx = new_hitx;
 		hity = new_hity;
@@ -240,14 +238,10 @@ public class Sudoku
 	public void FindAllSingles()
 	{
 		if (_abort)
-		{
 			return;
-		}
 
 		if (ComputeErors() > 0)
-		{
 			return;
-		}
 
 		do
 		{
@@ -347,9 +341,7 @@ public class Sudoku
 
 		// guesses must be part of possible (calculated) candidates
 		if (!_calc_candidates[j, i].Contains(value))
-		{
 			return;
-		}
 
 		if (!gues.Contains(value))
 		{
@@ -437,9 +429,7 @@ public class Sudoku
 		_abort = false;
 
 		if (_fixes[hity, hitx] == 1)
-		{
 			return;
-		}
 
 		SaveState(new UndoData(hity, hitx, _nums[hity, hitx]));
 
@@ -574,9 +564,7 @@ public class Sudoku
 
 		// guesses must be part of possible (calculated) candidates
 		if (!_calc_candidates[hity, hitx].Contains(value))
-		{
 			return;
-		}
 
 		if (gues.Contains(value))
 		{
@@ -595,9 +583,7 @@ public class Sudoku
 	private void EnterValueIntoField(int value)
 	{
 		if (_fixes[hity, hitx] == 1)
-		{
 			return;
-		}
 
 		// before any changes, save current state
 		SaveState(new UndoData(hity, hitx, _nums[hity, hitx]));
@@ -612,9 +598,7 @@ public class Sudoku
 	public void CheckPuzzleIsOk()
 	{
 		if (_abort)
-		{
 			return;
-		}
 
 		if (CalculateSolution() is null)
 		{
@@ -637,9 +621,7 @@ public class Sudoku
 	private void RestoreState()
 	{
 		if (_undos.Count == 0)
-		{
 			return;
-		}
 
 		var u = _undos[^1];
 		this.hitx = u.x;
@@ -793,10 +775,9 @@ public class Sudoku
 
 		for (int n = 0; n < 81; n++)
 		{
-			string c = lines[1].Substring(n, 1);
 			int i = n / 9;
 			int j = n % 9;
-			_fixes[i, j] = Convert.ToInt32(c);
+			_fixes[i, j] = lines[1][n] - '0';
 		}
 
 		for (int i = 0; i < 9; i++)
@@ -808,14 +789,12 @@ public class Sudoku
 			{
 				foreach (char c in calcstr[j])
 				{
-					_user_candidates[i, j].Add(
-						Convert.ToInt32(c.ToString()));
+					_user_candidates[i, j].Add(c - '0');
 				}
 
 				foreach (char c in guesstr[j])
 				{
-					_user_guesses[i, j].Add(
-						Convert.ToInt32(c.ToString()));
+					_user_guesses[i, j].Add(c - '0');
 				}
 
 				RemoveUserCandsFromCalcCands(i, j);
@@ -841,7 +820,7 @@ public class Sudoku
 		}
 	}
 
-	public bool SetGameString(string game)
+	public bool SetGameString(ReadOnlySpan<char> game)
 	{
 		ClearAllLists();
 
@@ -854,7 +833,7 @@ public class Sudoku
 		return true;
 	}
 
-	public void FillGameBoardFromLine(string game)
+	public void FillGameBoardFromLine(ReadOnlySpan<char> game)
 	{
 		if (game.Length != 81)
 		{
@@ -873,14 +852,27 @@ public class Sudoku
 
 		for (int n = 0; n < 81; n++)
 		{
-			string c = game.Substring(n, 1);
+			var c = game[n];
 			int i = n / 9;
 			int j = n % 9;
-			_nums[i, j] = c == "." ? 0 : Convert.ToInt32(c);
+			_nums[i, j] = c == '.' ? 0 : (c - '0');
 		}
 
 		SetAllFixesByValues();
 	}
+
+	static readonly ReadOnlyMemory<Color> NumberColors = new Color[] {
+		Color.White,		// 0
+		Color.DarkRed,		// 1
+		Color.Orange,		// 2
+		Color.Yellow,		// 3
+		Color.LightGreen,	// 4
+		Color.DarkGreen,	// 5
+		Color.LightBlue,	// 6
+		Color.DarkBlue,		// 7
+		Color.Violet,		// 8
+		Color.DarkViolet	// 9
+	};
 
 	public void Draw(Graphics G, float angle)
 	{
@@ -921,9 +913,7 @@ public class Sudoku
 		realw = min - 2 * m;
 
 		if (realw <= 0)
-		{
 			return;
-		}
 
 		var realw9 = realw / 9;
 		float error_circle_m = realw9 * 0.95f;
@@ -983,7 +973,15 @@ public class Sudoku
 							}
 						}
 
-						string num = _nums[index_j, index_i] == 0 ? "" : _nums[index_j, index_i].ToString();
+						int numValue = _nums[index_j, index_i];
+						string num = numValue == 0 ? "" : numValue.ToString();
+
+						if(numValue != 0)
+						{
+							var numColor = NumberColors.Span[numValue];
+							var brush = new SolidBrush(numColor);
+							G.FillEllipse(brush, ci, cj, realw9, realw9);
+						}
 
 						if (_fixes[index_j, index_i] == 1)
 						{
@@ -1130,9 +1128,7 @@ public class Sudoku
 	{
 		var num = _nums[j, i];
 		if (num == 0)
-		{
 			return;
-		}
 
 		foreach (var p in _pairs[j, i])
 		{
@@ -1183,9 +1179,7 @@ public class Sudoku
 				"Puzzle have solution!\nApply solution?",
 				  "Sudoku", MessageBoxButtons.YesNo);
 			if (answer == DialogResult.No)
-			{
 				return;
-			}
 		}
 
 		var res = "";
@@ -1204,9 +1198,7 @@ public class Sudoku
 	public bool IsSolved()
 	{
 		if (!IsFull())
-		{
 			return false;
-		}
 
 		return ComputeErors() == 0;
 	}
@@ -1218,9 +1210,7 @@ public class Sudoku
 			for (int j = 0; j < 9; j++)
 			{
 				if (_nums[j, i] == 0)
-				{
 					return false;
-				}
 			}
 		}
 
@@ -1229,13 +1219,9 @@ public class Sudoku
 
 	public void GenerateGame()
 	{
-		var fill = new Generator2().GenerateSudokuBoard();
-		if (string.IsNullOrEmpty(fill))
-		{
-			fill = Generator.Run();
-		}
-
-		var puzz = new Puzzler(65).MakePuzzle(fill);
+		var puzz = new Puzzler(65)
+			.MakePuzzle(GenerateBoard())
+			.ToArray();
 
 		SetGameString(puzz);
 		LockNumbers();
@@ -1244,6 +1230,14 @@ public class Sudoku
 		{
 			FindAllSingles();
 		}
+	}
+
+	private static char[] GenerateBoard()
+	{
+		var fill = Generator2.GenNew().ToArray();
+		if (fill.Length == 0)
+			fill = Generator.GenNew().ToArray();
+		return fill;
 	}
 
 	private void SetAllFixesByValues()

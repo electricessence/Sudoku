@@ -15,7 +15,7 @@ public class Puzzler
 	public Puzzler(int numberOfSwaps)
 		=> _numberOfSwaps = numberOfSwaps;
 
-	public string MakePuzzle(string input)
+	public IEnumerable<char> MakePuzzle(ReadOnlySpan<char> input)
 	{
 		FillBoard(input);
 		Swap();
@@ -137,7 +137,7 @@ public class Puzzler
 		}
 	}
 
-	public void FillBoard(string game)
+	public void FillBoard(ReadOnlySpan<char> game)
 	{
 		if (game.Length != 81)
 		{
@@ -155,25 +155,22 @@ public class Puzzler
 
 		for (int n = 0; n < 81; n++)
 		{
-			string c = game.Substring(n, 1);
+			char c = game[n];
 			int i = n / 9;
 			int j = n % 9;
-			_table[i, j] = c == "." ? 0 : Convert.ToInt32(c);
+			_table[i, j] = c == '.' ? 0 : (c - '0');
 		}
 	}
 
-	private string MakeLine()
+	private IEnumerable<char> MakeLine()
 	{
-		var res = "";
 		for (int i = 0; i < 9; i++)
 		{
 			for (int j = 0; j < 9; j++)
 			{
 				var value = _table[i, j];
-				res += value == 0 ? "." : value.ToString();
+				yield return value == 0 ? '.' : value.ToNumChar();
 			}
 		}
-
-		return res;
 	}
 }
