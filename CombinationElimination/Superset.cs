@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 
 namespace CombinationElimination;
-public class Superset : IReadOnlyList<IList<int[]>>
+public class Superset : IReadOnlyList<List<Set>>
 {
 	public Superset(int size, int range)
 	{
@@ -9,18 +9,18 @@ public class Superset : IReadOnlyList<IList<int[]>>
 		Range = range;
 		_sets = Enumerable
 			.Range(0, size)
-			.Select(_ => new List<int[]>(range / size))
+			.Select(_ => new List<Set>(range / size))
 			.ToArray();
 	}
 
-	private readonly IList<IList<int[]>> _sets;
+	private readonly IList<List<Set>> _sets;
 
-	public IList<int[]> this[int index] => _sets[index];
+	public List<Set> this[int index] => _sets[index];
 
 	public int Count { get; }
 	public int Range { get; }
 
-	public IEnumerator<IList<int[]>> GetEnumerator() => _sets.GetEnumerator();
+	public IEnumerator<List<Set>> GetEnumerator() => _sets.GetEnumerator();
 
 	IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
