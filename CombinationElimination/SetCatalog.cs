@@ -9,7 +9,7 @@ public class SetCatalog : IReadOnlyList<Set>
 
 	public SetCatalog(IEnumerable<Set> sets)
 	{
-		_sets = sets.ToArray();
+		_sets = sets.OrderBy(s => s).ToArray();
 		_setsLookup = new HashSet<Set>(_sets.Length);
 		foreach (var set in _sets)
 		{
@@ -27,6 +27,13 @@ public class SetCatalog : IReadOnlyList<Set>
 	public Set this[int index]
 		=> _sets[index];
 
+	public Set? Find(Set set)
+	{
+		var span = _sets.AsSpan();
+		int index = span.BinarySearch(set);
+		return index < 0 ? null : span[index];
+	}
+
 	public ReadOnlySpan<Set> AsSpan()
 		=> _sets.AsSpan();
 
@@ -39,4 +46,7 @@ public class SetCatalog : IReadOnlyList<Set>
 
 	IEnumerator IEnumerable.GetEnumerator()
 		=> _sets.GetEnumerator();
+
+	public SetCatalog Without(IEnumerable<int> set)
+		=> new(_sets.Where(s => !s.Overlaps(set)));
 }

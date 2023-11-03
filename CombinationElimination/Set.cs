@@ -6,15 +6,23 @@ namespace CombinationElimination;
 /// <summary>
 /// Represents an immutable set of integers, sorted in ascending order.
 /// </summary>
-public class Set : IEquatable<Set>, IReadOnlyList<int>, IReadOnlySet<int>
+public class Set : IEquatable<Set>, IComparable<Set>, IReadOnlyList<int>, IReadOnlySet<int>
 {
 	/// <summary>
 	/// Initializes a new instance of the Set class with the specified elements.
 	/// </summary>
 	/// <param name="elements">The elements to include in the set.</param>
 	public Set(IEnumerable<int> elements)
+		: this(elements.ToArray()) { }
+
+	/// <inheritdoc cref="Set(IEnumerable{int})"/>"
+	public Set(ReadOnlySpan<int> elements)
+		: this(elements.ToArray()) { }
+
+	private Set(int[] elements)
 	{
-		_elements = elements.OrderBy(x => x).ToArray();
+		Array.Sort(elements);
+		_elements = elements;
 		_hashCode = GenerateHashCode(_elements);
 		_stringRepresentation = ToStringRepresentation(_elements);
 	}
@@ -25,11 +33,6 @@ public class Set : IEquatable<Set>, IReadOnlyList<int>, IReadOnlySet<int>
 
 	/// <inheritdoc />
 	public int Count => _elements.Length;
-
-	/// <summary>
-	/// Always returns true because the Set is read-only.
-	/// </summary>
-	public bool IsReadOnly => true;
 
 	/// <inheritdoc />
 	public int this[int index] => _elements[index];
@@ -57,8 +60,8 @@ public class Set : IEquatable<Set>, IReadOnlyList<int>, IReadOnlySet<int>
 
 	private static string ToStringRepresentation(ReadOnlySpan<int> elements)
 	{
-		var sb = new StringBuilder();
-		sb.Append('[');
+		var sb = new StringBuilder(elements.Length * 4 + 2);
+		sb.Append('{');
 		switch (elements.Length)
 		{
 			case 0:
@@ -72,12 +75,12 @@ public class Set : IEquatable<Set>, IReadOnlyList<int>, IReadOnlySet<int>
 				sb.Append(elements[0]);
 				for (var i = 1; i < elements.Length; i++)
 				{
-					sb.Append(',');
+					sb.Append(',').Append(' ');
 					sb.Append(elements[i]);
 				}
 				break;
 		}
-		sb.Append(']');
+		sb.Append('}');
 		return sb.ToString();
 	}
 
@@ -141,6 +144,32 @@ public class Set : IEquatable<Set>, IReadOnlyList<int>, IReadOnlySet<int>
 		return true;
 	}
 
+	/// <inheritdoc />
+	public int CompareTo(Set? other)
+	{
+		if (other is null)
+			return 1;
+
+		if (this == other)
+			return 0;
+
+		int len = _elements.Length;
+		int lenDif = len - other._elements.Length;
+		if (lenDif != 0)
+			return lenDif;
+
+		var span = _elements.AsSpan();
+		var spanOther = other._elements.AsSpan();
+		for (int i = 0; i < len; i++)
+		{
+			int dif = span[i] - spanOther[i];
+			if (dif != 0)
+				return dif;
+		}
+
+		return 0;
+	}
+
 	/// <summary>
 	/// Determines if two instances of Set are equal.
 	/// </summary>
@@ -152,4 +181,10 @@ public class Set : IEquatable<Set>, IReadOnlyList<int>, IReadOnlySet<int>
 	/// </summary>
 	public static bool operator !=(Set? left, Set? right)
 		=> !(left == right);
+
+	public static implicit operator Set(ReadOnlySpan<int> set)
+		=> new(set);
+
+	public static implicit operator Set(int[] set)
+		=> new(set);
 }
