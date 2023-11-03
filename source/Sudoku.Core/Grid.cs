@@ -19,6 +19,9 @@ public class Grid<T> : IGrid<T>
 		Source = new T[width, height];
 	}
 
+	public Grid(int size)
+		: this(size, size) { }
+
 	public int ColCount { get; }
 	public int RowCount { get; }
 
@@ -28,13 +31,13 @@ public class Grid<T> : IGrid<T>
 		set => Source[x, y] = value;
 	}
 
-	public GridSpan<T> GetSubGrid(int x, int y, int width = -1, int height = -1)
+	public GridSegment<T> GetSubGrid(int x, int y, int width = -1, int height = -1)
 	{
 		if(width == -1)
 			width = ColCount - x;
 		if(height == -1)
 			height = RowCount - y;
 
-		return new GridSpan<T>(Source, x, y, width, height);
+		return new GridSegment<T>(Source, x, y, width, height);
 	}
 }

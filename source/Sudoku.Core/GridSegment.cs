@@ -2,7 +2,7 @@
 
 namespace Sudoku.Core;
 
-public readonly ref struct GridSpan<T>
+public readonly struct GridSegment<T> : IGrid<T>
 {
 	readonly T[,] _source;
 	readonly int _x;
@@ -12,7 +12,7 @@ public readonly ref struct GridSpan<T>
 
 	public int ColCount { get; }
 
-	public GridSpan(T[,] sourceGrid, int x, int y, int width, int height)
+	public GridSegment(T[,] sourceGrid, int x, int y, int width, int height)
 	{
 		if (sourceGrid is null)
 			throw new ArgumentNullException(nameof(sourceGrid));
@@ -52,13 +52,13 @@ public readonly ref struct GridSpan<T>
 		}
 	}
 
-	public GridSpan<T> GetSubGrid(int x, int y, int width = -1, int height = -1)
+	public GridSegment<T> GetSubGrid(int x, int y, int width = -1, int height = -1)
 	{
 		if (width == -1)
 			width = ColCount - x;
 		if (height == -1)
 			height = RowCount - y;
 
-		return new GridSpan<T>(_source, _x + x, _y + y, width, height);
+		return new GridSegment<T>(_source, _x + x, _y + y, width, height);
 	}
 }

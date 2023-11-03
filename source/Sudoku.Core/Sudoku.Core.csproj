@@ -7,6 +7,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <PackageReference Include="Open.RandomizationExtensions" Version="2.5.3" />
 	  <PackageReference Include="System.Memory" Version="4.5.5" />
 	</ItemGroup>
 

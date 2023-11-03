@@ -28,6 +28,6 @@ public class SquaredGrid<T> : Grid<T>
 		Size = square * square;
 	}
 
-	public GridSpan<T> GetSubSquare(int x, int y)
+	public GridSegment<T> GetSubSquare(int x, int y)
 		=> GetSubGrid(x * Square, y * Square, Square, Square);
 }

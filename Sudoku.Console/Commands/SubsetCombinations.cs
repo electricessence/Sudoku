@@ -1,12 +1,9 @@
 ﻿using Open.Collections;
 using Spectre.Console;
 using Spectre.Console.Cli;
-using Sudoku.Core;
-using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace Sudoku.Console.Commands;
@@ -20,30 +17,22 @@ public class SubsetCombinations : Command<SubsetCombinations.Settings>
 		public byte Value { get; init; } = 3;
 	}
 
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	static IEnumerable<HashSet<T>> SubsetsToHashsets<T>(IReadOnlyList<T> source, int size)
-	{
-		foreach (var subset in source.SubsetsBuffered(size))
-		{
-			var hashset = new HashSet<T>(size);
-			{
-				var span = subset.Span;
-				for (var i = 0; i < size; ++i)
-					hashset.Add(span[i]);
-			}
-			yield return hashset;
-		}
-	}
+	//[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	//static IEnumerable<HashSet<T>> SubsetsToHashsets<T>(IReadOnlyList<T> source, int size)
+	//{
+	//	foreach (var subset in source.SubsetsBuffered(size))
+	//	{
+	//		var hashset = new HashSet<T>(size);
+	//		{
+	//			var span = subset.Span;
+	//			for (var i = 0; i < size; ++i)
+	//				hashset.Add(span[i]);
+	//		}
+	//		yield return hashset;
+	//	}
+	//}
 
-	static bool Intersects<T>(HashSet<T> source, ReadOnlyMemory<T> other)
-	{
-		foreach (var s in other.Span)
-		{
-			if (!source.Add(s))
-				return true;
-		}
-		return false;
-	}
+
 
 	public override int Execute(
 		[NotNull] CommandContext context,
@@ -54,17 +43,8 @@ public class SubsetCombinations : Command<SubsetCombinations.Settings>
 		var sourceSet = Enumerable.Range(1, size).ToArray();
 		var subsets = sourceSet.Subsets(square).ToArray();
 		var setChecker = new HashSet<int>(size);
-		var groupSets = subsets.SubsetsBuffered(square).Where(group =>
-		{
-			setChecker.Clear();
-			foreach (var subset in group.Span)
-			{
-				if (Intersects(setChecker, subset))
-					return false;
-			}
-
-			return true;
-		}).Select(g => g.ToArray()).ToArray();
+		var groupSets = Utility.GroupSets(square)
+			.ToArray();
 
 		var totalGroupSets = groupSets.Length;
 		AnsiConsole.WriteLine($"Total Group Sets: {totalGroupSets}");
@@ -72,16 +52,11 @@ public class SubsetCombinations : Command<SubsetCombinations.Settings>
 		// This is the designated set that defines what the other set should compare against
 		// since real combinations are essentially interchangeable.
 		var anchorSet = groupSets[0];
-		var grid = new Grid();
-		for (var i = 0; i < square; i++)
-			grid.AddColumn();
-		foreach (var row in anchorSet)
-			grid.AddRow(row.Select(e => e.ToString()).ToArray());
 		AnsiConsole.WriteLine();
 		AnsiConsole.WriteLine("Anchor Set:");
-		AnsiConsole.Write(grid);
+		AnsiConsole.Write(Utility.GroupGrid(anchorSet));
 		AnsiConsole.WriteLine();
-		 
+
 		// Given the anchor set, we can narrow down any remaining sets that could exist along side it.
 		var possibleIntersectingSets = groupSets.Where(s => s.PermutationsBuffered().Any(p =>
 		{
@@ -127,7 +102,7 @@ public class SubsetCombinations : Command<SubsetCombinations.Settings>
 							return c;
 					}
 
-					Debug.Assert(false, "Should not be possible to reach this point.");
+					Debug.Fail("Should not be possible to reach this point.");
 					return 0;
 				});
 
@@ -149,6 +124,7 @@ public class SubsetCombinations : Command<SubsetCombinations.Settings>
 			.Where(e => hashSetCheck.Add(e.hash))
 			.Select(e => e.set)
 			.ToArray();
+
 		AnsiConsole.WriteLine($"Total Possible Cross Configurations: {crossConfigurations.Length}");
 		AnsiConsole.WriteLine();
 		AnsiConsole.WriteLine("Total Possilbe Board Variations:");

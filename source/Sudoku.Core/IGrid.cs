@@ -20,7 +20,7 @@ public interface IGrid<T>
 	/// </summary>
 	int RowCount { get; }
 
-	GridSpan<T> GetSubGrid(int x, int y, int width = -1, int height = -1);
+	GridSegment<T> GetSubGrid(int x, int y, int width = -1, int height = -1);
 }
 
 
