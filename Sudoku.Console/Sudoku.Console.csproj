@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Commands\GenerateBoard.cs" />
     <Compile Remove="Square.cs" />
     <Compile Remove="SquareMatrix.cs" />
   </ItemGroup>
@@ -19,6 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\CombinationElimination\CombinationElimination.csproj" />
     <ProjectReference Include="..\source\Sudoku.Core\Sudoku.Core.csproj" />
   </ItemGroup>
 

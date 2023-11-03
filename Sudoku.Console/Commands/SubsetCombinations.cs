@@ -1,6 +1,8 @@
-﻿using Open.Collections;
+﻿using CombinationElimination;
+using Open.Collections;
 using Spectre.Console;
 using Spectre.Console.Cli;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
@@ -17,22 +19,17 @@ public class SubsetCombinations : Command<SubsetCombinations.Settings>
 		public byte Value { get; init; } = 3;
 	}
 
-	//[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	//static IEnumerable<HashSet<T>> SubsetsToHashsets<T>(IReadOnlyList<T> source, int size)
-	//{
-	//	foreach (var subset in source.SubsetsBuffered(size))
-	//	{
-	//		var hashset = new HashSet<T>(size);
-	//		{
-	//			var span = subset.Span;
-	//			for (var i = 0; i < size; ++i)
-	//				hashset.Add(span[i]);
-	//		}
-	//		yield return hashset;
-	//	}
-	//}
-
-
+	static IEnumerable<IEnumerable<T>> CartesianProduct<T>(IEnumerable<IEnumerable<T>> sequences)
+	{
+		IEnumerable<IEnumerable<T>> emptyProduct = new[] { Enumerable.Empty<T>() };
+		return sequences.Aggregate(
+			emptyProduct,
+			(accumulator, sequence) =>
+				from accSeq in accumulator
+				from item in sequence
+				select accSeq.Concat(new[] { item })
+		);
+	}
 
 	public override int Execute(
 		[NotNull] CommandContext context,
@@ -43,15 +40,16 @@ public class SubsetCombinations : Command<SubsetCombinations.Settings>
 		var sourceSet = Enumerable.Range(1, size).ToArray();
 		var subsets = sourceSet.Subsets(square).ToArray();
 		var setChecker = new HashSet<int>(size);
-		var groupSets = Utility.GroupSets(square)
-			.ToArray();
 
-		var totalGroupSets = groupSets.Length;
-		AnsiConsole.WriteLine($"Total Group Sets: {totalGroupSets}");
+		var catalog = new SetCatalog(sourceSet.Subsets(square).Select(Set.Relinquish));
+		AnsiConsole.WriteLine($"Catalog Size: {catalog.Count}");
+
+		var groupSets = Utility.GroupSets(catalog, square).ToArray();
+		AnsiConsole.WriteLine($"Total Group Sets: {groupSets.Length}");
 
 		// This is the designated set that defines what the other set should compare against
 		// since real combinations are essentially interchangeable.
-		var anchorSet = groupSets[0];
+		var anchorSet = groupSets[0].Select(e => e.ToArray()).ToArray();
 		AnsiConsole.WriteLine();
 		AnsiConsole.WriteLine("Anchor Set:");
 		AnsiConsole.Write(Utility.GroupGrid(anchorSet));
@@ -60,7 +58,6 @@ public class SubsetCombinations : Command<SubsetCombinations.Settings>
 		// Given the anchor set, we can narrow down any remaining sets that could exist along side it.
 		var possibleIntersectingSets = groupSets.Where(s => s.PermutationsBuffered().Any(p =>
 		{
-
 			for (var i = 0; i < square; i++)
 			{
 				var aSub = anchorSet[i];
@@ -73,26 +70,39 @@ public class SubsetCombinations : Command<SubsetCombinations.Settings>
 
 			return true;
 		})).ToArray();
-		AnsiConsole.WriteLine($"Total Possible Intersecting Sets: {possibleIntersectingSets.Length}");
+
+		AnsiConsole.WriteLine($"Total Possible Adjacent Group Sets: {possibleIntersectingSets.Length}");
 
 		// Find the cross sets from the possible intersecting sets. "Rotate" the sets possible sets and reduce.
-		IEnumerable<int[][]> SelectCrossSet(int[][] pis)
+		IEnumerable<Set[]> SelectCrossSet(Set[] group)
 		{
-			foreach (var perm in pis.Select(c => c.Permutations().ToArray()))
+			var permutations = new IEnumerable<ReadOnlyMemory<int>>[square];
+			// Setup anchor row.
+			permutations[0] = Enumerable.Repeat(group[0].AsMemory(), 1);
+			for (var i = 1; i < square; ++i)
 			{
-				// Iterate all the possible permutations to produce each cross set.
-				var crossSet = new int[square][];
-				for (var y = 0; y < square; y++)
-				{
-					var row = new int[square];
-					crossSet[y] = row;
-					for (var x = 0; x < square; x++)
-					{
-						row[x] = perm[x][y];
-					}
-					Array.Sort(row);
-				}
+				// Setup remaining rows.
+				permutations[i] = group[i].PermutationsBuffered();
+			}
 
+			var enumerators = permutations.Select(s => {
+				var e = s.GetEnumerator();
+				e.MoveNext();
+				return e;
+			}).ToArray();
+
+			// We use the enumerators as a way to track possibilities and reset the enumerator when it reaches the end.
+			// If the first enumerator reaches the end, then we have exhausted all possibilities.
+			var set = new ReadOnlyMemory<int>[square];
+
+			do
+			{
+				for (var c = 0; c < square; ++c)
+					set[c] = enumerators[c].Current;
+
+				var crossSet = set.Select(e => catalog.Get(e.Span)).ToArray();
+
+				// Sort the cross set so that we can compare them later.
 				Array.Sort(crossSet, (a, b) =>
 				{
 					for (var i = 0; i < square; i++)
@@ -106,13 +116,41 @@ public class SubsetCombinations : Command<SubsetCombinations.Settings>
 					return 0;
 				});
 
+
 				yield return crossSet;
+			}
+			while (MoveNext());
+
+			bool MoveNext()
+			{
+				int last = square - 1;
+				if (Rotate(last))
+					return true;
+
+				for (int c = last - 1; c >= 0; --c)
+				{
+					if (Rotate(c))
+						return true;
+				}
+
+				return false;
+			}
+
+			bool Rotate(int index)
+			{
+				var e = enumerators[index];
+				if (e.MoveNext())
+					return true;
+				e.Dispose();
+				enumerators[index] = e = permutations[index].GetEnumerator();
+				e.MoveNext();
+				return false;
 			}
 		}
 
 		var sb = new StringBuilder(9);
 		var hashSetCheck = new HashSet<string>();
-		var crossConfigurations = possibleIntersectingSets
+		var crossSets = possibleIntersectingSets
 			.SelectMany(SelectCrossSet)
 			.Select(e =>
 			{
@@ -125,26 +163,27 @@ public class SubsetCombinations : Command<SubsetCombinations.Settings>
 			.Select(e => e.set)
 			.ToArray();
 
-		AnsiConsole.WriteLine($"Total Possible Cross Configurations: {crossConfigurations.Length}");
-		AnsiConsole.WriteLine();
-		AnsiConsole.WriteLine("Total Possilbe Board Variations:");
-		var squareMinusOne = square - 1;
-		var estimatedTotalBoardVariations = 1;
-		for (var j = 0; j < 2 * squareMinusOne; j++)
-		{
-			AnsiConsole.Write(possibleIntersectingSets.Length);
-			AnsiConsole.Write(" × ");
-			estimatedTotalBoardVariations *= possibleIntersectingSets.Length;
-		}
-		for (var j = 0; j < squareMinusOne * squareMinusOne; j++)
-		{
-			AnsiConsole.Write(crossConfigurations.Length);
-			AnsiConsole.Write(" × ");
-			estimatedTotalBoardVariations *= crossConfigurations.Length;
-		}
-		AnsiConsole.WriteLine(1);
-		AnsiConsole.Write(" = ");
-		AnsiConsole.WriteLine(estimatedTotalBoardVariations);
+		AnsiConsole.WriteLine($"Total Possible Cross Sets: {crossSets.Length}");
+
+		//AnsiConsole.WriteLine();
+		//AnsiConsole.WriteLine("Total Possilbe Board Variations:");
+		//var squareMinusOne = square - 1;
+		//var estimatedTotalBoardVariations = 1;
+		//for (var j = 0; j < 2 * squareMinusOne; j++)
+		//{
+		//	AnsiConsole.Write(possibleIntersectingSets.Length);
+		//	AnsiConsole.Write(" × ");
+		//	estimatedTotalBoardVariations *= possibleIntersectingSets.Length;
+		//}
+		//for (var j = 0; j < squareMinusOne * squareMinusOne; j++)
+		//{
+		//	AnsiConsole.Write(crossConfigurations.Length);
+		//	AnsiConsole.Write(" × ");
+		//	estimatedTotalBoardVariations *= crossConfigurations.Length;
+		//}
+		//AnsiConsole.WriteLine(1);
+		//AnsiConsole.Write(" = ");
+		//AnsiConsole.WriteLine(estimatedTotalBoardVariations);
 
 		//var possibleCrossConfigurations = groupSets.Where(s => s.PermutationsBuffered().Any(p =>
 		//{

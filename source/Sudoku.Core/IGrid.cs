@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace Sudoku.Core;
 public interface IGrid<T>
@@ -22,7 +20,6 @@ public interface IGrid<T>
 
 	GridSegment<T> GetSubGrid(int x, int y, int width = -1, int height = -1);
 }
-
 
 public static class GridExtensions
 {

@@ -2,7 +2,6 @@
 using Spectre.Console;
 using Spectre.Console.Cli;
 using Sudoku.Core;
-using System;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 
@@ -23,15 +22,15 @@ internal class PossibleCombinations : Command<PossibleCombinations.Settings>
 	{
 		var square = settings.Value;
 		var values = Enumerable.Range(1, square * square).ToArray();
-		foreach(var firstRow in values.PermutationsBuffered())
+		foreach (var firstRow in values.PermutationsBuffered())
 		{
 			var span = firstRow.Span;
 			var grid = new SquaredGrid<int>(square);
-			for(int x = 0; x < grid.Size; x++)
+			for (int x = 0; x < grid.Size; x++)
 				grid[x, 0] = span[x];
 
-			var remainingSquare0 = firstRow.Slice(square);
-			foreach(var remPerm in remainingSquare0.PermutationsBuffered())
+			var remainingSquare0 = firstRow[square..];
+			foreach (var remPerm in remainingSquare0.PermutationsBuffered())
 			{
 				var remGrid = grid.GetSubSquare(0, 0);
 				var remPermSpan = remPerm.Span;
@@ -48,13 +47,12 @@ internal class PossibleCombinations : Command<PossibleCombinations.Settings>
 					.HideFooters()
 					.ShowRowSeparators();
 
-				for (i = 0; i< grid.ColCount; i++)
+				for (i = 0; i < grid.ColCount; i++)
 					table.AddColumn(span[i].ToString());
 				foreach (var row in grid.Rows().Skip(1))
 				{
 					table.AddRow(row.Select(i => i == 0 ? " " : i.ToString()).ToArray());
 				}
-					
 
 				AnsiConsole.Write(table);
 			}
@@ -62,5 +60,4 @@ internal class PossibleCombinations : Command<PossibleCombinations.Settings>
 
 		return 0;
 	}
-
 }

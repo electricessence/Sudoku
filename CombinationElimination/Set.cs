@@ -27,6 +27,15 @@ public class Set : IEquatable<Set>, IComparable<Set>, IReadOnlyList<int>, IReadO
 		_stringRepresentation = ToStringRepresentation(_elements);
 	}
 
+	/// <summary>
+	/// Initializes a set with the elements provided and assumes ownership of the array.
+	/// </summary>
+	/// <remarks>
+	/// Any subsequent modification of the array outside this class could cause unexpected behavior.
+	/// </remarks>
+	public static Set Relinquish(int[] elements)
+		=> new(elements);
+
 	private readonly int[] _elements;
 	private readonly int _hashCode;
 	private readonly string _stringRepresentation;
@@ -36,6 +45,11 @@ public class Set : IEquatable<Set>, IComparable<Set>, IReadOnlyList<int>, IReadO
 
 	/// <inheritdoc />
 	public int this[int index] => _elements[index];
+
+	/// <summary>
+	/// Returns a read-only memory representing the Set elements.
+	/// </summary>
+	public ReadOnlyMemory<int> AsMemory() => _elements.AsMemory();
 
 	/// <summary>
 	/// Returns a read-only span representing the Set elements.
@@ -85,24 +99,24 @@ public class Set : IEquatable<Set>, IComparable<Set>, IReadOnlyList<int>, IReadO
 	}
 
 	/// <inheritdoc />
-	public override string ToString() => _stringRepresentation;
+	public override string ToString()
+		=> _stringRepresentation;
 
 	/// <inheritdoc />
 	public IEnumerator<int> GetEnumerator()
-	{
-		int len = _elements.Length;
-		for (var i = 0; i < len; i++)
-			yield return _elements[i];
-	}
+		=> ((IEnumerable<int>)_elements).GetEnumerator();
 
 	/// <inheritdoc />
-	IEnumerator IEnumerable.GetEnumerator() => _elements.GetEnumerator();
+	IEnumerator IEnumerable.GetEnumerator()
+		=> _elements.GetEnumerator();
 
 	/// <inheritdoc />
-	public bool Equals(Set? other) => other is not null && _stringRepresentation == other._stringRepresentation;
+	public bool Equals(Set? other)
+		=> other is not null && _stringRepresentation == other._stringRepresentation;
 
 	/// <inheritdoc />
-	public override bool Equals(object? obj) => Equals(obj as Set);
+	public override bool Equals(object? obj)
+		=> Equals(obj as Set);
 
 	/// <inheritdoc />
 	public bool Contains(int item)
@@ -184,6 +198,9 @@ public class Set : IEquatable<Set>, IComparable<Set>, IReadOnlyList<int>, IReadO
 
 	public static implicit operator Set(ReadOnlySpan<int> set)
 		=> new(set);
+
+	public static implicit operator ReadOnlySpan<int>(Set set)
+		=> set.AsSpan();
 
 	public static implicit operator Set(int[] set)
 		=> new(set);

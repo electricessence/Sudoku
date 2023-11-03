@@ -1,7 +1,7 @@
 ﻿using Spectre.Console.Cli;
 using Sudoku.Console.Commands;
 
-var app = new CommandApp<GenerateBoard>();
+var app = new CommandApp<SubsetCombinations>();
 app.Configure(config =>
 {
 #if DEBUG

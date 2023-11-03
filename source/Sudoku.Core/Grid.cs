@@ -33,9 +33,9 @@ public class Grid<T> : IGrid<T>
 
 	public GridSegment<T> GetSubGrid(int x, int y, int width = -1, int height = -1)
 	{
-		if(width == -1)
+		if (width == -1)
 			width = ColCount - x;
-		if(height == -1)
+		if (height == -1)
 			height = RowCount - y;
 
 		return new GridSegment<T>(Source, x, y, width, height);

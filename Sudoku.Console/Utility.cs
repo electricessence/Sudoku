@@ -1,4 +1,5 @@
-﻿using Open.Collections;
+﻿using CombinationElimination;
+using Open.Collections;
 using Spectre.Console;
 using Spectre.Console.Rendering;
 using Sudoku.Core;
@@ -7,9 +8,9 @@ using System.Numerics;
 namespace Sudoku.Console;
 internal static class Utility
 {
-	public static bool Intersects<T>(HashSet<T> source, ReadOnlyMemory<T> other)
+	public static bool Intersects<T>(HashSet<T> source, ReadOnlySpan<T> other)
 	{
-		foreach (var s in other.Span)
+		foreach (var s in other)
 		{
 			if (!source.Add(s))
 				return true;
@@ -17,13 +18,11 @@ internal static class Utility
 		return false;
 	}
 
-	public static IEnumerable<int[][]> GroupSets(int square)
+	public static IEnumerable<Set[]> GroupSets(SetCatalog catalog, int square)
 	{
 		var size = square * square;
-		var sourceSet = Enumerable.Range(1, size).ToArray();
-		var subsets = sourceSet.Subsets(square).ToArray();
 		var setChecker = new HashSet<int>(size);
-		return subsets
+		return catalog
 			.SubsetsBuffered(square)
 			.Where(group =>
 			{
@@ -36,11 +35,23 @@ internal static class Utility
 
 				return true;
 			})
-			.Select(g => g.ToArray())
-			.ToArray();
+			.Select(g => g.ToArray());
 	}
 
-	public static Grid GroupGrid(this int[][] source)
+	public static Grid GroupGrid(ReadOnlySpan<Set> source)
+	{
+		var grid = new Grid();
+
+		for (var i = 0; i < source[0].Count; i++)
+			grid.AddColumn();
+
+		foreach (var row in source)
+			grid.AddRow(row.Select(i => i == 0 ? "" : i.ToString()).ToArray());
+
+		return grid;
+	}
+
+	public static Grid GroupGrid(ReadOnlySpan<int[]> source)
 	{
 		var grid = new Grid();
 

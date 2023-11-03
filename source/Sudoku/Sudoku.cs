@@ -976,7 +976,7 @@ public class Sudoku
 						int numValue = _nums[index_j, index_i];
 						string num = numValue == 0 ? "" : numValue.ToString();
 
-						if(numValue != 0)
+						if (numValue != 0)
 						{
 							var numColor = NumberColors.Span[numValue];
 							var brush = new SolidBrush(numColor);
