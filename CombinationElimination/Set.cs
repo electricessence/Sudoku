@@ -2,8 +2,16 @@
 using System.Text;
 
 namespace CombinationElimination;
+
+/// <summary>
+/// Represents an immutable set of integers, sorted in ascending order.
+/// </summary>
 public class Set : IEquatable<Set>, IReadOnlyList<int>, IReadOnlySet<int>
 {
+	/// <summary>
+	/// Initializes a new instance of the Set class with the specified elements.
+	/// </summary>
+	/// <param name="elements">The elements to include in the set.</param>
 	public Set(IEnumerable<int> elements)
 	{
 		_elements = elements.OrderBy(x => x).ToArray();
@@ -13,17 +21,26 @@ public class Set : IEquatable<Set>, IReadOnlyList<int>, IReadOnlySet<int>
 
 	private readonly int[] _elements;
 	private readonly int _hashCode;
-
 	private readonly string _stringRepresentation;
 
+	/// <inheritdoc />
 	public int Count => _elements.Length;
 
+	/// <summary>
+	/// Always returns true because the Set is read-only.
+	/// </summary>
 	public bool IsReadOnly => true;
 
+	/// <inheritdoc />
 	public int this[int index] => _elements[index];
 
+	/// <summary>
+	/// Returns a read-only span representing the Set elements.
+	/// </summary>
+	/// <returns>A read-only span of integers.</returns>
 	public ReadOnlySpan<int> AsSpan() => _elements.AsSpan();
 
+	/// <inheritdoc />
 	public override int GetHashCode() => _hashCode;
 
 	private static int GenerateHashCode(int[] elements)
@@ -38,7 +55,7 @@ public class Set : IEquatable<Set>, IReadOnlyList<int>, IReadOnlySet<int>
 		}
 	}
 
-	public static string ToStringRepresentation(ReadOnlySpan<int> elements)
+	private static string ToStringRepresentation(ReadOnlySpan<int> elements)
 	{
 		var sb = new StringBuilder();
 		sb.Append('[');
@@ -64,60 +81,75 @@ public class Set : IEquatable<Set>, IReadOnlyList<int>, IReadOnlySet<int>
 		return sb.ToString();
 	}
 
-	public override string ToString()
-		=> _stringRepresentation;
+	/// <inheritdoc />
+	public override string ToString() => _stringRepresentation;
 
+	/// <inheritdoc />
 	public IEnumerator<int> GetEnumerator()
 	{
 		int len = _elements.Length;
 		for (var i = 0; i < len; i++)
 			yield return _elements[i];
 	}
-	IEnumerator IEnumerable.GetEnumerator()
-		=> _elements.GetEnumerator();
 
-	public bool Equals(Set? other)
-		=> other is not null && _stringRepresentation == other._stringRepresentation;
+	/// <inheritdoc />
+	IEnumerator IEnumerable.GetEnumerator() => _elements.GetEnumerator();
 
-	public override bool Equals(object? obj)
-		=> Equals(obj as Set);
+	/// <inheritdoc />
+	public bool Equals(Set? other) => other is not null && _stringRepresentation == other._stringRepresentation;
 
+	/// <inheritdoc />
+	public override bool Equals(object? obj) => Equals(obj as Set);
+
+	/// <inheritdoc />
 	public bool Contains(int item)
-		 // use binary search to determine if the item exists.
-		 => _elements.AsSpan().BinarySearch(item) >= 0;
+		// Use binary search to determine if the item exists.
+		=> _elements.AsSpan().BinarySearch(item) >= 0;
 
+	/// <inheritdoc />
 	public bool IsProperSubsetOf(IEnumerable<int> other)
 		=> _elements.Length < other.Count() && IsSubsetOf(other);
 
+	/// <inheritdoc />
 	public bool IsProperSupersetOf(IEnumerable<int> other)
 		=> _elements.Length > other.Count() && IsSupersetOf(other);
 
+	/// <inheritdoc />
 	public bool IsSubsetOf(IEnumerable<int> other)
 		=> !_elements.Except(other).Any();
 
+	/// <inheritdoc />
 	public bool IsSupersetOf(IEnumerable<int> other)
 		=> !other.Except(_elements).Any();
 
+	/// <inheritdoc />
 	public bool Overlaps(IEnumerable<int> other)
 		=> _elements.Any(other.Contains);
 
+	/// <inheritdoc />
 	public bool SetEquals(IEnumerable<int> other)
 	{
-		if(other is ICollection<int> c && c.Count != _elements.Length)
+		if (other is ICollection<int> c && c.Count != _elements.Length)
 			return false;
 
-		foreach(int item in other)
+		foreach (int item in other)
 		{
-			if(!Contains(item))
+			if (!Contains(item))
 				return false;
 		}
 
 		return true;
 	}
 
+	/// <summary>
+	/// Determines if two instances of Set are equal.
+	/// </summary>
 	public static bool operator ==(Set? left, Set? right)
 		=> left?.Equals(right) ?? right is null;
 
+	/// <summary>
+	/// Determines if two instances of Set are not equal.
+	/// </summary>
 	public static bool operator !=(Set? left, Set? right)
 		=> !(left == right);
 }
