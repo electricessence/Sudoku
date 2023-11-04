@@ -2,7 +2,6 @@
 using Open.Collections;
 using Spectre.Console;
 using Spectre.Console.Cli;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
@@ -19,18 +18,6 @@ public class SubsetCombinations : Command<SubsetCombinations.Settings>
 		public byte Value { get; init; } = 3;
 	}
 
-	static IEnumerable<IEnumerable<T>> CartesianProduct<T>(IEnumerable<IEnumerable<T>> sequences)
-	{
-		IEnumerable<IEnumerable<T>> emptyProduct = new[] { Enumerable.Empty<T>() };
-		return sequences.Aggregate(
-			emptyProduct,
-			(accumulator, sequence) =>
-				from accSeq in accumulator
-				from item in sequence
-				select accSeq.Concat(new[] { item })
-		);
-	}
-
 	public override int Execute(
 		[NotNull] CommandContext context,
 		[NotNull] Settings settings)
@@ -44,7 +31,24 @@ public class SubsetCombinations : Command<SubsetCombinations.Settings>
 		var catalog = new SetCatalog(sourceSet.Subsets(square).Select(Set.Relinquish));
 		AnsiConsole.WriteLine($"Catalog Size: {catalog.Count}");
 
-		var groupSets = Utility.GroupSets(catalog, square).ToArray();
+		var sb = new StringBuilder(9);
+		(Set[] set, string hash) SupersetHash(Set[] e)
+		{
+			sb.Clear();
+			foreach (var c in e.SelectMany(e => e))
+				sb.Append(c);
+			return (set: e, hash: sb.ToString());
+		}
+
+		var groupSetLookup = Utility.GroupSets(catalog, square)
+			.Select(SupersetHash)
+			.ToDictionary(item => item.hash, item => item.set);
+
+		var groupSets = groupSetLookup
+			.OrderBy(e=>e.Key)
+			.Select(e => e.Value)
+			.ToArray();
+
 		AnsiConsole.WriteLine($"Total Group Sets: {groupSets.Length}");
 
 		// This is the designated set that defines what the other set should compare against
@@ -85,7 +89,8 @@ public class SubsetCombinations : Command<SubsetCombinations.Settings>
 				permutations[i] = group[i].PermutationsBuffered();
 			}
 
-			var enumerators = permutations.Select(s => {
+			var enumerators = permutations.Select(s =>
+			{
 				var e = s.GetEnumerator();
 				e.MoveNext();
 				return e;
@@ -116,8 +121,7 @@ public class SubsetCombinations : Command<SubsetCombinations.Settings>
 					return 0;
 				});
 
-
-				yield return crossSet;
+				yield return groupSetLookup[SupersetHash(crossSet).hash];
 			}
 			while (MoveNext());
 
@@ -148,22 +152,13 @@ public class SubsetCombinations : Command<SubsetCombinations.Settings>
 			}
 		}
 
-		var sb = new StringBuilder(9);
 		var hashSetCheck = new HashSet<string>();
 		var crossSets = possibleIntersectingSets
 			.SelectMany(SelectCrossSet)
-			.Select(e =>
-			{
-				sb.Clear();
-				foreach (var c in e.SelectMany(e => e))
-					sb.Append(c);
-				return (set: e, hash: sb.ToString());
-			})
-			.Where(e => hashSetCheck.Add(e.hash))
-			.Select(e => e.set)
+			.Distinct()
 			.ToArray();
 
-		AnsiConsole.WriteLine($"Total Possible Cross Sets: {crossSets.Length}");
+		AnsiConsole.WriteLine($"Total Possible Cross Group Sets: {crossSets.Length}");
 
 		//AnsiConsole.WriteLine();
 		//AnsiConsole.WriteLine("Total Possilbe Board Variations:");
