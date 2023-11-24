@@ -5,15 +5,12 @@ namespace Sudoku;
 
 //https://github.com/igortrofymov/SudokuGenerator
 
-public class Puzzler
+public class Puzzler(int numberOfSwaps)
 {
 	static readonly Random rnd = new();
 
 	private int[,] _table = new int[9, 9];
-	readonly int _numberOfSwaps;
-
-	public Puzzler(int numberOfSwaps)
-		=> _numberOfSwaps = numberOfSwaps;
+	readonly int _numberOfSwaps = numberOfSwaps;
 
 	public IEnumerable<char> MakePuzzle(ReadOnlySpan<char> input)
 	{
@@ -118,7 +115,7 @@ public class Puzzler
 		for (int i = 0; i < 9; i++)
 		{
 			int hidedInRow = rnd.Next(4, 7);
-			List<int> toHide = new();
+			List<int> toHide = [];
 			for (int h = 0; h <= hidedInRow; h++)
 			{
 				int rand = rnd.Next(0, 9);

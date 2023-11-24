@@ -14,8 +14,7 @@ public readonly struct GridSegment<T> : IGrid<T>
 
 	public GridSegment(T[,] sourceGrid, int x, int y, int width, int height)
 	{
-		if (sourceGrid is null)
-			throw new ArgumentNullException(nameof(sourceGrid));
+		ArgumentNullException.ThrowIfNull(sourceGrid);
 
 		if (x < 0 || x >= sourceGrid.GetLength(0))
 			throw new ArgumentOutOfRangeException(nameof(x));
@@ -52,7 +51,7 @@ public readonly struct GridSegment<T> : IGrid<T>
 		}
 	}
 
-	public GridSegment<T> GetSubGrid(int x, int y, int width = -1, int height = -1)
+	public IGrid<T> GetSubGrid(int x, int y, int width = -1, int height = -1)
 	{
 		if (width == -1)
 			width = ColCount - x;

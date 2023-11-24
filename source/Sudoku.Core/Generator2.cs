@@ -80,7 +80,7 @@ public class Generator2 : GeneratorBase
 	}
 
 	//Check if grid contains the number
-	public bool CheckNotUsedInGrid(int rowStart, int colStart, int num, int[,] sudokuGrid)
+	public static bool CheckNotUsedInGrid(int rowStart, int colStart, int num, int[,] sudokuGrid)
 	{
 		for (int i = 0; i < 3; i++)
 		{
@@ -96,12 +96,13 @@ public class Generator2 : GeneratorBase
 	}
 
 	//Check if it is safe to put the number in a cell
-	public bool CheckIfSafeToPlace(int i, int j, int num, int[,] sudokuGrid) => CheckNotUsedInRow(i, num, sudokuGrid) &&
-			CheckNotUsedInColumn(j, num, sudokuGrid) &&
-			CheckNotUsedInGrid(i - i % 3, j - j % 3, num, sudokuGrid);
+	public static bool CheckIfSafeToPlace(int i, int j, int num, int[,] sudokuGrid)
+		=> CheckNotUsedInRow(i, num, sudokuGrid)
+		&& CheckNotUsedInColumn(j, num, sudokuGrid)
+		&& CheckNotUsedInGrid(i - i % 3, j - j % 3, num, sudokuGrid);
 
 	//Check if number is already there in a row
-	public bool CheckNotUsedInRow(int i, int num, int[,] sudokuGrid)
+	public static bool CheckNotUsedInRow(int i, int num, int[,] sudokuGrid)
 	{
 		for (int j = 0; j < 9; j++)
 		{
@@ -115,7 +116,7 @@ public class Generator2 : GeneratorBase
 	}
 
 	//Check if number is already there in a column
-	public bool CheckNotUsedInColumn(int j, int num, int[,] sudokuGrid)
+	public static bool CheckNotUsedInColumn(int j, int num, int[,] sudokuGrid)
 	{
 		for (int i = 0; i < 9; i++)
 		{
@@ -129,7 +130,7 @@ public class Generator2 : GeneratorBase
 	}
 
 	//Fill all the remaining cells excepts diagonal
-	public bool FillOtherCells(int i, int j, int[,] sudokuGrid)
+	public static bool FillOtherCells(int i, int j, int[,] sudokuGrid)
 	{
 		if (j >= 9 && i < 9 - 1)
 		{
@@ -182,7 +183,7 @@ public class Generator2 : GeneratorBase
 		{
 			bool[] row = new bool[10];
 			bool[] col = new bool[10];
-			int[] validNumbers = new int[9] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+			int[] validNumbers = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
 			for (int j = 0; j < 9; j++)
 			{

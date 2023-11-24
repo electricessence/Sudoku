@@ -72,7 +72,7 @@ public static class Solver
 		string[][] sd = new string[n][];
 		for (var i = 0; i < n; i++)
 		{
-			sd[i] = new string[] { A[i], B[i] };
+			sd[i] = [A[i], B[i]];
 		}
 
 		return sd;
@@ -290,8 +290,7 @@ public static class Solver
 	/// <summary>Used for debugging.</summary>
 	public static IDictionary<string, string> PrintBoard(IDictionary<string, string> values)
 	{
-		if (values is null)
-			throw new ArgumentNullException(nameof(values));
+		ArgumentNullException.ThrowIfNull(values);
 
 		var width = 1 + (from s in squares select values[s].Length).Max();
 		var line = "\n" + String.Join("+", Enumerable.Repeat(new String('-', width * 3), 3).ToArray());

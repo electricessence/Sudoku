@@ -6,7 +6,7 @@ public interface IGrid<T>
 	/// <summary>
 	/// Gets or sets the value at the specified row and column indexes.
 	/// </summary>
-	T this[int x, int y] { get; set; }
+	T this[int x, int y] { get; }
 
 	/// <summary>
 	/// Gets the number of columns in the grid.
@@ -18,7 +18,7 @@ public interface IGrid<T>
 	/// </summary>
 	int RowCount { get; }
 
-	GridSegment<T> GetSubGrid(int x, int y, int width = -1, int height = -1);
+	IGrid<T> GetSubGrid(int x, int y, int width = -1, int height = -1);
 }
 
 public static class GridExtensions

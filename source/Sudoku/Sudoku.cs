@@ -14,7 +14,7 @@ public class Sudoku
 	private readonly int[,] _fixes = new int[9, 9];
 	private readonly int[,] _errors = new int[9, 9];
 
-	private readonly List<UndoData> _undos = new();
+	private readonly List<UndoData> _undos = [];
 
 	private readonly HashSet<Pair>[,] _pairs = new HashSet<Pair>[9, 9];
 
@@ -66,9 +66,9 @@ public class Sudoku
 		{
 			for (int j = 0; j < 9; j++)
 			{
-				_calc_candidates[i, j] = new List<int>();
-				_user_candidates[i, j] = new List<int>();
-				_user_guesses[i, j] = new List<int>();
+				_calc_candidates[i, j] = [];
+				_user_candidates[i, j] = [];
+				_user_guesses[i, j] = [];
 			}
 		}
 

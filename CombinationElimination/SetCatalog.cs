@@ -32,7 +32,7 @@ public class SetCatalog : IReadOnlyList<Set>
 	private SetCatalog(ISet<Set> sets)
 	{
 		_setsLookup = sets;
-		_sets = sets.OrderBy(s => s).ToArray();
+		_sets = [.. sets.Order()];
 	}
 
 	public static SetCatalog Relinquish(ISet<Set> sets)
@@ -62,7 +62,7 @@ public class SetCatalog : IReadOnlyList<Set>
 
 	public Set Get(Set set)
 	{
-		if (set is null) throw new ArgumentNullException(nameof(set));
+		ArgumentNullException.ThrowIfNull(set);
 		return Find(set) ?? throw new ArgumentException($"Set not found: {set}");
 	}
 

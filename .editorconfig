@@ -245,3 +245,6 @@ dotnet_style_collection_initializer = true:suggestion
 dotnet_style_prefer_simplified_boolean_expressions = true:warning
 dotnet_style_prefer_conditional_expression_over_assignment = true:warning
 dotnet_style_prefer_conditional_expression_over_return = true:silent
+
+# IDE0305: Simplify collection initialization
+dotnet_style_prefer_collection_expression = false

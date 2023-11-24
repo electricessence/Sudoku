@@ -8,10 +8,8 @@ public class Grid<T> : IGrid<T>
 	public Grid(int width, int height)
 	{
 		// Validate parameters.
-		if (width <= 0)
-			throw new ArgumentOutOfRangeException(nameof(width));
-		if (height <= 0)
-			throw new ArgumentOutOfRangeException(nameof(height));
+		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(width);
+		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(height);
 
 		ColCount = width;
 		RowCount = height;
@@ -40,4 +38,7 @@ public class Grid<T> : IGrid<T>
 
 		return new GridSegment<T>(Source, x, y, width, height);
 	}
+
+	IGrid<T> IGrid<T>.GetSubGrid(int x, int y, int width, int height)
+		=> GetSubGrid(x, y, width, height);
 }

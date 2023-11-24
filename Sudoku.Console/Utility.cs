@@ -51,6 +51,29 @@ internal static class Utility
 		return grid;
 	}
 
+	public static Grid Grid(int columns, IEnumerable<IEnumerable<IRenderable>> source, int colPadding = 3, int rowPadding = 1)
+	{
+		var grid = new Grid();
+
+		for (var i = 0; i < columns; i++)
+		{
+			grid.AddColumn(new GridColumn()
+			{
+				Padding = new Padding(0, 0, colPadding, 0),
+			});
+		}
+
+		foreach (var row in source)
+		{
+			var a = row is IRenderable[] r ? r : row.ToArray();
+			grid.AddRow(a);
+			for (var i = 0; i < rowPadding; i++)
+				grid.AddEmptyRow();
+		}
+
+		return grid;
+	}
+
 	public static Grid GroupGrid(ReadOnlySpan<int[]> source)
 	{
 		var grid = new Grid();
@@ -64,7 +87,7 @@ internal static class Utility
 		return grid;
 	}
 
-	public static Grid GroupGrid<T>(this GridSegment<T> source)
+	public static Grid GroupGrid<T>(this IGrid<T> source)
 		where T : INumber<T>
 	{
 		var grid = new Grid();
@@ -86,15 +109,16 @@ internal static class Utility
 		return grid;
 	}
 
-	public static IEnumerable<T[][]> PossibleRemainingGroups<T>(T[][][] groupSets, IGrid<T> source, int square)
+	public static IEnumerable<ReadOnlyMemory<T[]>> PossibleRemainingGroups<T>(T[][][] groupSets, IGrid<T> source, int square)
 		=> groupSets
 		.SelectMany(s => s.Permutations())
 		.Where(p =>
 		{
+			var span = p.Span;
 			for (var i = 0; i < square; i++)
 			{
 				var aSub = source.GetRow(i);
-				foreach (var e in p[i])
+				foreach (var e in span[i])
 				{
 					if (aSub.Contains(e))
 						return false;
@@ -117,7 +141,7 @@ internal static class Utility
 
 			for (var x = 0; x < square; x++)
 			{
-				row[x] = Utility.GroupGrid(grid.GetSubGrid(x * square, y * square, square, square));
+				row[x] = GroupGrid(grid.GetSubGrid(x * square, y * square, square, square));
 			}
 
 			fullGrid.AddRow(row);

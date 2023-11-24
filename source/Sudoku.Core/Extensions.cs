@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
 
@@ -26,5 +27,22 @@ public static class Extensions
 		foreach (var c in chars)
 			sb.Append(c);
 		return sb.ToString();
+	}
+
+	public static StringBuilder AppendRepresentation<T>(this StringBuilder sb, IEnumerable<T> values)
+		where T: struct, IFormattable
+	{
+		ArgumentNullException.ThrowIfNull(sb);
+		ArgumentNullException.ThrowIfNull(values);
+
+		sb.Append('[');
+		foreach (var value in values)
+		{
+			sb.Append(value.ToString(null, null));
+			sb.Append(',');
+		}
+		sb.Remove(sb.Length - 1, 1);
+		sb.Append(']');
+		return sb;
 	}
 }

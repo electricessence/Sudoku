@@ -1,14 +1,16 @@
 ﻿using CombinationElimination;
 using Open.Collections;
+using Open.Disposable;
 using Spectre.Console;
 using Spectre.Console.Cli;
+using Sudoku.Core;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
 namespace Sudoku.Console.Commands;
-public class SubsetCombinations : Command<SubsetCombinations.Settings>
+public class SubsetCombinations : AsyncCommand<SubsetCombinations.Settings>
 {
 	public sealed class Settings
 		: CommandSettings
@@ -18,147 +20,130 @@ public class SubsetCombinations : Command<SubsetCombinations.Settings>
 		public byte Value { get; init; } = 3;
 	}
 
-	public override int Execute(
+	public override async Task<int> ExecuteAsync(
 		[NotNull] CommandContext context,
 		[NotNull] Settings settings)
 	{
-		var square = settings.Value;
-		var size = square * square;
-		var sourceSet = Enumerable.Range(1, size).ToArray();
-		var subsets = sourceSet.Subsets(square).ToArray();
-		var setChecker = new HashSet<int>(size);
+		var resolver = new Resolver(settings.Value);
+		var blockFamilies = resolver.GetBlockFamilies();
+		AnsiConsole.WriteLine($"{resolver.Square}x{resolver.Square} familes: {blockFamilies.Count}");
+		AnsiConsole.WriteLine($"Square Set Catalog Size: {resolver.Catalog.Count}");
 
-		var catalog = new SetCatalog(sourceSet.Subsets(square).Select(Set.Relinquish));
-		AnsiConsole.WriteLine($"Catalog Size: {catalog.Count}");
-
-		var sb = new StringBuilder(9);
-		(Set[] set, string hash) SupersetHash(Set[] e)
-		{
-			sb.Clear();
-			foreach (var c in e.SelectMany(e => e))
-				sb.Append(c);
-			return (set: e, hash: sb.ToString());
-		}
-
-		var groupSetLookup = Utility.GroupSets(catalog, square)
-			.Select(SupersetHash)
-			.ToDictionary(item => item.hash, item => item.set);
-
-		var groupSets = groupSetLookup
-			.OrderBy(e=>e.Key)
-			.Select(e => e.Value)
-			.ToArray();
-
-		AnsiConsole.WriteLine($"Total Group Sets: {groupSets.Length}");
+		Debug.Assert(resolver.GroupSets.Count == resolver.GetCrossSets(resolver.GroupSets.Values).Length);
+		AnsiConsole.WriteLine($"Total Group Sets: {resolver.GroupSets.Count}");
 
 		// This is the designated set that defines what the other set should compare against
 		// since real combinations are essentially interchangeable.
-		var anchorSet = groupSets[0].Select(e => e.ToArray()).ToArray();
+		var anchorSet = resolver.GroupSets.Values.First();
+		var anchorSetR = anchorSet.Span.ToClockwiseRotated();
 		AnsiConsole.WriteLine();
-		AnsiConsole.WriteLine("Anchor Set:");
-		AnsiConsole.Write(Utility.GroupGrid(anchorSet));
+		AnsiConsole.WriteLine("Anchor Block:");
+		var anchorGrid = Utility.GroupGrid(anchorSet.Span);
+		AnsiConsole.Write(anchorGrid);
+		/***********
+		 * 1  2  3 *
+		 * 4  5  6 *
+		 * 7  8  9 *
+		 ***********/
+
 		AnsiConsole.WriteLine();
+		AnsiConsole.WriteLine("Anchor Block Rotated:");
+		AnsiConsole.Write(Utility.GroupGrid(anchorSetR));
+		AnsiConsole.WriteLine();
+		/***********
+		 * 7  4  1 *
+		 * 8  5  2 *
+		 * 9  6  3 *
+		 ***********/
 
 		// Given the anchor set, we can narrow down any remaining sets that could exist along side it.
-		var possibleIntersectingSets = groupSets.Where(s => s.PermutationsBuffered().Any(p =>
+		var possibleAdjacentSets = resolver.GetAdjacentSets(anchorSet);
+		var possibleAdjacentSetsR = resolver.GetAdjacentSets(anchorSetR);
+		Debug.Assert(possibleAdjacentSets.Length == possibleAdjacentSetsR.Length);
+		AnsiConsole.WriteLine($"Total Possible Adjacent Group Sets: {possibleAdjacentSets.Length}");
+		/*********************
+		 * 1  2  3 * -  -  - *
+		 * 4  5  6 * -  -  - *
+		 * 7  8  9 * -  -  - *
+		 *********************
+		 * |  |  | *
+		 * |  |  | *
+		 * |  |  | *
+		 ***********/
+
+		var crossSets = resolver.GetCrossSets(possibleAdjacentSets);
+		var crossSetsR = resolver.GetCrossSets(possibleAdjacentSetsR);
+		Debug.Assert(crossSets.Length == crossSetsR.Length);
+		AnsiConsole.WriteLine($"Total Possible Cross Group Sets: {crossSets.Length}");
+		/*********************
+		 * 1  2  3 * -  -  - *
+		 * 4  5  6 * -  -  - *
+		 * 7  8  9 * -  -  - *
+		 *********************
+		 * |  |  | * X  X  X *
+		 * |  |  | * X  X  X *
+		 * |  |  | * X  X  X *
+		 *********************/
+
+		var crossSetsAdjacent = resolver.GetAdjacentSets(crossSets);
+		var crossSetsAdjacentR = resolver.GetAdjacentSets(crossSetsR);
+		Debug.Assert(crossSetsAdjacent.Length == crossSetsAdjacentR.Length);
+		AnsiConsole.WriteLine($"Total Possible Cross Group Adjacent Sets: {crossSetsAdjacent.Length}");
+
+		var nextDiagnal = blockFamilies.First().Value.Span[0];
+		var nextDiagnalGrid = nextDiagnal.GroupGrid();
+		var anchorBlock = Block.Create(anchorSet.Span);
+		// Return the results of each set that crosses the diagnal in parallel.
+
+		var x1y0T = Task.Run(() => resolver.GetValidCrossedBlocks(anchorBlock, nextDiagnal).First());
+		var x0y1 = await Task.Run(() => resolver.GetValidCrossedBlocks(nextDiagnal, anchorBlock).First());
+		var x1y0 = await x1y0T;
+		var x0y1Grid = x0y1.GroupGrid();
+		var x1y0Grid = x1y0.GroupGrid();
+		//AnsiConsole.Write(Utility.Grid(2, [
+		//	[anchorGrid, x1y0Grid],
+		//	[x0y1Grid, nextDiagnalGrid],
+		//]));
+
+		var localSet = new List<int>(resolver.Size);
+		var x2y0set = new Set[resolver.Square];
 		{
-			for (var i = 0; i < square; i++)
+			for (var i = 0; i < resolver.Square; i++)
 			{
-				var aSub = anchorSet[i];
-				foreach (var e in p.Span[i])
-				{
-					if (aSub.Contains(e))
-						return false;
-				}
+				localSet.Clear();
+				localSet.AddRange(anchorBlock.GetRow(i));
+				localSet.AddRange(x1y0.GetRow(i));
+
+				x2y0set[i] = new Set(Enumerable.Range(1, resolver.Size).Except(localSet));
 			}
+		}
+		var x2y0 = Block.Create((ReadOnlySpan<Set>)x2y0set.AsSpan());
+		var x2y0Grid = x2y0.GroupGrid();
 
-			return true;
-		})).ToArray();
-
-		AnsiConsole.WriteLine($"Total Possible Adjacent Group Sets: {possibleIntersectingSets.Length}");
-
-		// Find the cross sets from the possible intersecting sets. "Rotate" the sets possible sets and reduce.
-		IEnumerable<Set[]> SelectCrossSet(Set[] group)
+		var x0y2setR = new Set[resolver.Square];
 		{
-			var permutations = new IEnumerable<ReadOnlyMemory<int>>[square];
-			// Setup anchor row.
-			permutations[0] = Enumerable.Repeat(group[0].AsMemory(), 1);
-			for (var i = 1; i < square; ++i)
+			for (var i = 0; i < resolver.Square; i++)
 			{
-				// Setup remaining rows.
-				permutations[i] = group[i].PermutationsBuffered();
-			}
+				localSet.Clear();
+				localSet.AddRange(anchorBlock.GetColumn(i));
+				localSet.AddRange(x0y1.GetColumn(i));
 
-			var enumerators = permutations.Select(s =>
-			{
-				var e = s.GetEnumerator();
-				e.MoveNext();
-				return e;
-			}).ToArray();
-
-			// We use the enumerators as a way to track possibilities and reset the enumerator when it reaches the end.
-			// If the first enumerator reaches the end, then we have exhausted all possibilities.
-			var set = new ReadOnlyMemory<int>[square];
-
-			do
-			{
-				for (var c = 0; c < square; ++c)
-					set[c] = enumerators[c].Current;
-
-				var crossSet = set.Select(e => catalog.Get(e.Span)).ToArray();
-
-				// Sort the cross set so that we can compare them later.
-				Array.Sort(crossSet, (a, b) =>
-				{
-					for (var i = 0; i < square; i++)
-					{
-						var c = a[i].CompareTo(b[i]);
-						if (c != 0)
-							return c;
-					}
-
-					Debug.Fail("Should not be possible to reach this point.");
-					return 0;
-				});
-
-				yield return groupSetLookup[SupersetHash(crossSet).hash];
-			}
-			while (MoveNext());
-
-			bool MoveNext()
-			{
-				int last = square - 1;
-				if (Rotate(last))
-					return true;
-
-				for (int c = last - 1; c >= 0; --c)
-				{
-					if (Rotate(c))
-						return true;
-				}
-
-				return false;
-			}
-
-			bool Rotate(int index)
-			{
-				var e = enumerators[index];
-				if (e.MoveNext())
-					return true;
-				e.Dispose();
-				enumerators[index] = e = permutations[index].GetEnumerator();
-				e.MoveNext();
-				return false;
+				x0y2setR[i] = new Set(Enumerable.Range(1, resolver.Size).Except(localSet));
 			}
 		}
 
-		var hashSetCheck = new HashSet<string>();
-		var crossSets = possibleIntersectingSets
-			.SelectMany(SelectCrossSet)
-			.Distinct()
-			.ToArray();
+		x0y2setR.AsSpan().Reverse();
+		var x0y2set = x0y2setR.AsSpan().ToClockwiseRotated();
+		var x0y2 = Block.Create((ReadOnlySpan<int[]>)x0y2set.AsSpan());
+		var x0y2Grid = x0y2.GroupGrid();
 
-		AnsiConsole.WriteLine($"Total Possible Cross Group Sets: {crossSets.Length}");
+		AnsiConsole.Write(Utility.Grid(3, [
+			[anchorGrid, x1y0Grid, x2y0Grid],
+			[x0y1Grid, nextDiagnalGrid],
+			[x0y2Grid],
+		]));
+
+		// Validate all posible group configurations.
 
 		//AnsiConsole.WriteLine();
 		//AnsiConsole.WriteLine("Total Possilbe Board Variations:");
