@@ -4,6 +4,7 @@ using Spectre.Console;
 using Spectre.Console.Rendering;
 using Sudoku.Core;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 
 namespace Sudoku.Console;
 internal static class Utility
@@ -159,4 +160,12 @@ internal static class Utility
 
 		return group;
 	}
+
+	public static SortedDictionary<string, Block[]> GroupFamilies(this IEnumerable<Block> blocks)
+		=> blocks
+			.AsParallel()
+			.GroupBy(b => b.FamilyID)
+			.ToSortedDictionary(
+				g => g.Key,
+				g => g.OrderBy(b => b.ToString()).ToArray());
 }

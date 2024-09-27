@@ -56,22 +56,6 @@ public class Resolver
 		return GroupSets[set.GetToStringHash()];
 	}
 
-	public ReadOnlyMemory<Set>[] GetAdjacentSets(int[][] set)
-		=> GroupSets.Values.Where(s => s.PermutationsBuffered().Any(p =>
-		{
-			for (var i = 0; i < Square; i++)
-			{
-				var aSub = set[i];
-				foreach (var e in p.Span[i])
-				{
-					if (aSub.Contains(e))
-						return false;
-				}
-			}
-
-			return true;
-		})).ToArray();
-
 	public ReadOnlyMemory<Set>[] GetAdjacentSets(ReadOnlyMemory<int>[] set)
 		=> GroupSets.Values.Where(s => s.PermutationsBuffered().Any(p =>
 		{
@@ -87,6 +71,40 @@ public class Resolver
 
 			return true;
 		})).ToArray();
+
+	public ReadOnlyMemory<Set>[] GetAdjacentSets<T>(T[] set)
+		where T : IEnumerable<int>
+		=> GroupSets.Values.Where(s => s.PermutationsBuffered().Any(p =>
+		{
+			for (var i = 0; i < Square; i++)
+			{
+				var aSub = set[i];
+				foreach (var e in p.Span[i])
+				{
+					if (aSub.Contains(e))
+						return false;
+				}
+			}
+
+			return true;
+		})).ToArray();
+
+	public IEnumerable<IEnumerable<Set>> GetAdjacentOrderedSets(IEnumerable<HashSet<int>> sets)
+	{
+		foreach (var s in sets)
+		{
+			yield return Catalog.Where(e => !s.Overlaps(e));
+		}
+	}
+
+	public IEnumerable<IEnumerable<Set>> GetAdjacentOrderedSets<T>(IEnumerable<T> sets)
+		where T : IEnumerable<int>
+	{
+		foreach (var s in sets)
+		{
+			yield return Catalog.Where(e => !e.Overlaps(s));
+		}
+	}
 
 	public ReadOnlyMemory<Set>[] GetAdjacentSets(ReadOnlyMemory<Set> set)
 		=> GroupSets.Values.Where(s => s.PermutationsBuffered().Any(p =>
@@ -193,14 +211,6 @@ public class Resolver
 		foreach(var m in memory.Permutations())
 			yield return Block.Create(m.Span);
 	}
-
-	public SortedDictionary<string, ReadOnlyMemory<Block>> GetBlockFamilies()
-		=> GetBlocks()
-			.AsParallel()
-			.GroupBy(b => b.FamilyID)
-			.ToSortedDictionary(
-				g => g.Key,
-				g => (ReadOnlyMemory<Block>)g.OrderBy(b => b.ToString()).ToArray());
 
 	public IEnumerable<Block> GetValidCrossedBlocks(Block horizontal, Block vertical)
 	{

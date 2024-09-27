@@ -25,7 +25,7 @@ public class SubsetCombinations : AsyncCommand<SubsetCombinations.Settings>
 		[NotNull] Settings settings)
 	{
 		var resolver = new Resolver(settings.Value);
-		var blockFamilies = resolver.GetBlockFamilies();
+		var blockFamilies = resolver.GetBlocks().GroupFamilies();
 		AnsiConsole.WriteLine($"{resolver.Square}x{resolver.Square} familes: {blockFamilies.Count}");
 		AnsiConsole.WriteLine($"Square Set Catalog Size: {resolver.Catalog.Count}");
 
@@ -90,12 +90,17 @@ public class SubsetCombinations : AsyncCommand<SubsetCombinations.Settings>
 		Debug.Assert(crossSetsAdjacent.Length == crossSetsAdjacentR.Length);
 		AnsiConsole.WriteLine($"Total Possible Cross Group Adjacent Sets: {crossSetsAdjacent.Length}");
 
-		var nextDiagnal = blockFamilies.First().Value.Span[0];
+		var nextDiagnal = blockFamilies.First().Value[0];
 		var nextDiagnalGrid = nextDiagnal.GroupGrid();
 		var anchorBlock = Block.Create(anchorSet.Span);
 		// Return the results of each set that crosses the diagnal in parallel.
 
-		var x1y0T = Task.Run(() => resolver.GetValidCrossedBlocks(anchorBlock, nextDiagnal).First());
+		var x1y0T = Task.Run(() =>
+		{
+			var possibleCrossArrangements = resolver.GetValidCrossedBlocks(anchorBlock, nextDiagnal).GroupFamilies();
+			AnsiConsole.WriteLine($"Total Possible Crossed Block Families: {possibleCrossArrangements.Count}");
+			return possibleCrossArrangements.First().Value[0];
+		});
 		var x0y1 = await Task.Run(() => resolver.GetValidCrossedBlocks(nextDiagnal, anchorBlock).First());
 		var x1y0 = await x1y0T;
 		var x0y1Grid = x0y1.GroupGrid();
@@ -105,32 +110,20 @@ public class SubsetCombinations : AsyncCommand<SubsetCombinations.Settings>
 		//	[x0y1Grid, nextDiagnalGrid],
 		//]));
 
-		var localSet = new List<int>(resolver.Size);
-		var x2y0set = new Set[resolver.Square];
-		{
-			for (var i = 0; i < resolver.Square; i++)
-			{
-				localSet.Clear();
-				localSet.AddRange(anchorBlock.GetRow(i));
-				localSet.AddRange(x1y0.GetRow(i));
+		
+		var localSet = Reset(new HashSet<int>[resolver.Square], resolver.Square);
+		AddRows(localSet, anchorBlock);
+		AddRows(localSet, x1y0);
 
-				x2y0set[i] = new Set(Enumerable.Range(1, resolver.Size).Except(localSet));
-			}
-		}
+		var x2y0set = resolver.GetAdjacentOrderedSets(localSet).Select(s=>s.Single()).ToArray();
 		var x2y0 = Block.Create((ReadOnlySpan<Set>)x2y0set.AsSpan());
 		var x2y0Grid = x2y0.GroupGrid();
 
-		var x0y2setR = new Set[resolver.Square];
-		{
-			for (var i = 0; i < resolver.Square; i++)
-			{
-				localSet.Clear();
-				localSet.AddRange(anchorBlock.GetColumn(i));
-				localSet.AddRange(x0y1.GetColumn(i));
+		Reset(localSet, resolver.Square);
+		AddColumns(localSet, anchorBlock);
+		AddColumns(localSet, x0y1);
 
-				x0y2setR[i] = new Set(Enumerable.Range(1, resolver.Size).Except(localSet));
-			}
-		}
+		var x0y2setR = resolver.GetAdjacentOrderedSets(localSet).Select(s => s.Single()).ToArray();
 
 		x0y2setR.AsSpan().Reverse();
 		var x0y2set = x0y2setR.AsSpan().ToClockwiseRotated();
@@ -142,6 +135,16 @@ public class SubsetCombinations : AsyncCommand<SubsetCombinations.Settings>
 			[x0y1Grid, nextDiagnalGrid],
 			[x0y2Grid],
 		]));
+
+		Reset(localSet, resolver.Square);
+		AddRows(localSet, x0y1);
+		AddRows(localSet, nextDiagnal);
+
+		var x2y1set = resolver.GetAdjacentOrderedSets(localSet).Select(s => s.Single()).ToArray();
+		// How many remaining column sets are there?
+		//var x2Rows = x
+		//var 
+
 
 		// Validate all posible group configurations.
 
@@ -186,5 +189,43 @@ public class SubsetCombinations : AsyncCommand<SubsetCombinations.Settings>
 		//AnsiConsole.WriteLine($"Total Possible Opposing Sets: {possibleCrossConfigurations.Length}");
 
 		return 0;
+	}
+
+	static void AddRows(HashSet<int>[] sets, Block block)
+	{
+		for (var i = 0; i < sets.Length; i++)
+		{
+			var row = sets[i];
+			row ??= sets[i] = new();
+			row.AddRange(block.GetRow(i));
+		}
+	}
+
+	static void AddColumns(HashSet<int>[] sets, Block block)
+	{
+		for (var i = 0; i < sets.Length; i++)
+		{
+			var col = sets[i];
+			col ??= sets[i] = new();
+			col.AddRange(block.GetColumn(i));
+		}
+	}
+
+	static HashSet<T>[] Reset<T>(HashSet<T>[] sets, int capacity)
+	{
+		for (var i = 0; i < sets.Length; i++)
+		{
+			var s = sets[i];
+			if (s is null)
+			{
+				sets[i] = new(capacity);
+			}
+			else
+			{
+				s.Clear();
+				s.EnsureCapacity(capacity);
+			}
+		}
+		return sets;
 	}
 }
