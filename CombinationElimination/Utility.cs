@@ -39,5 +39,4 @@ public static class Utility
 
 	public static int[][] ToClockwiseRotated(this Span<Set> group)
 		=> ToClockwiseRotated((ReadOnlySpan<Set>)group);
-
 }

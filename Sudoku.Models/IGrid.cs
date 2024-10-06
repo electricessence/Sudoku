@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 
-namespace Sudoku.Core;
+namespace Sudoku.Models;
+
 public interface IGrid<T>
 {
 	/// <summary>

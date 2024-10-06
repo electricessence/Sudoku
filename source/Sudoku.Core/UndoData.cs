@@ -1,4 +1,4 @@
-﻿namespace Sudoku;
+﻿namespace Sudoku.Core;
 
 public enum What { number, user_guess, user_cand };
 

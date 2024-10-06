@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Text;
+﻿using System.Runtime.CompilerServices;
 
-namespace Sudoku;
+namespace Sudoku.Core;
 public static class Extensions
 {
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -30,7 +27,7 @@ public static class Extensions
 	}
 
 	public static StringBuilder AppendRepresentation<T>(this StringBuilder sb, IEnumerable<T> values)
-		where T: struct, IFormattable
+		where T : struct, IFormattable
 	{
 		ArgumentNullException.ThrowIfNull(sb);
 		ArgumentNullException.ThrowIfNull(values);

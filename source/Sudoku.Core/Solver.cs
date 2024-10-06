@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace Sudoku;
+namespace Sudoku.Core;
 
 /// <summary>
 /// Ported from http://norvig.com/sudo.py by Richard Birkby, June 2007.
@@ -24,8 +20,8 @@ public static class Solver
 	const string digits = "123456789";
 	static readonly string[] squares = Cross(rows, cols);
 	static readonly List<string[]> unitlist;
-	static readonly IDictionary<string, IEnumerable<string>> peers;
-	static readonly IDictionary<string, IGrouping<string, string[]>> units;
+	static readonly Dictionary<string, IEnumerable<string>> peers;
+	static readonly Dictionary<string, IGrouping<string, string[]>> units;
 
 	/*
 	 * def cross(A, B):
@@ -185,19 +181,18 @@ public static class Solver
 	static IDictionary<string, string>? Eliminate(IDictionary<string, string> values, string s, string d)
 	{
 		if (!values[s].Contains(d))
-		{
 			return values;
-		}
 
-		values[s] = values[s].Replace(d, "");
-		if (values[s].Length == 0)
-		{
+		var value = values[s].Replace(d, "");
+		values[s] = value;
+		int len = value.Length;
+		if (len == 0)
 			return null; //Contradiction: removed last value
-		}
-		else if (values[s].Length == 1)
+
+		if (len == 1)
 		{
 			//If there is only one value (d2) left in square, remove it from peers
-			var d2 = values[s];
+			var d2 = value;
 			if (!All(from s2 in peers[s] select Eliminate(values, s2, d2)))
 				return null;
 		}
@@ -273,7 +268,7 @@ public static class Solver
 		if (n % 2 > 0 && width % 2 > 0)
 			half++;
 
-		return new string(' ', half) + s + new String(' ', n - half);
+		return new string(' ', half) + s + new string(' ', n - half);
 	}
 
 	/*
@@ -293,7 +288,7 @@ public static class Solver
 		ArgumentNullException.ThrowIfNull(values);
 
 		var width = 1 + (from s in squares select values[s].Length).Max();
-		var line = "\n" + String.Join("+", Enumerable.Repeat(new String('-', width * 3), 3).ToArray());
+		var line = "\n" + string.Join("+", Enumerable.Repeat(new string('-', width * 3), 3).ToArray());
 
 		foreach (var r in rows)
 		{

@@ -1,14 +1,9 @@
 ﻿// Ignore Spelling: Sudoku rnd
 
-using Sudoku.Core;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
 // https://github.com/nilamsavani/SudokuGenerator
 // https://github.com/nilamsavani/SudokuGenerator/blob/master/SudokuGenerator/SudokuGenerator/Logic/Sudoku.cs
 
-namespace Sudoku;
+namespace Sudoku.Core;
 
 public class Generator2 : GeneratorBase
 {
@@ -87,9 +82,7 @@ public class Generator2 : GeneratorBase
 			for (int j = 0; j < 3; j++)
 			{
 				if (sudokuGrid[rowStart + i, colStart + j] == num)
-				{
 					return false;
-				}
 			}
 		}
 		return true;
@@ -107,9 +100,7 @@ public class Generator2 : GeneratorBase
 		for (int j = 0; j < 9; j++)
 		{
 			if (sudokuGrid[i, j] == num)
-			{
 				return false;
-			}
 		}
 
 		return true;
@@ -121,9 +112,7 @@ public class Generator2 : GeneratorBase
 		for (int i = 0; i < 9; i++)
 		{
 			if (sudokuGrid[i, j] == num)
-			{
 				return false;
-			}
 		}
 
 		return true;
@@ -148,7 +137,7 @@ public class Generator2 : GeneratorBase
 		}
 		else if (i < 6)
 		{
-			if (j == (int)(i / 3) * 3)
+			if (j == i / 3 * 3)
 				j += 3;
 		}
 		else
@@ -177,7 +166,7 @@ public class Generator2 : GeneratorBase
 	}
 
 	//Check if sudoku is valid or not
-	public bool ValidateSudokuBoard(int[,] sudokuGrid)
+	public static bool ValidateSudokuBoard(int[,] sudokuGrid)
 	{
 		for (int i = 0; i < 9; i++)
 		{

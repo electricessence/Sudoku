@@ -1,4 +1,4 @@
-﻿namespace Sudoku;
+﻿namespace Sudoku.Core;
 
 public readonly record struct Pair
 {
@@ -8,8 +8,8 @@ public readonly record struct Pair
 
 	public Pair(int j, int i, int kind = 0)
 	{
-		this.J = j;
-		this.I = i;
-		this.Kind = kind;
+		J = j;
+		I = i;
+		Kind = kind;
 	}
 }

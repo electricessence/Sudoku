@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Sudoku.Core;
+namespace Sudoku.Models;
 
 public readonly struct GridSegment<T> : IGrid<T>
 {
@@ -12,7 +12,29 @@ public readonly struct GridSegment<T> : IGrid<T>
 
 	public int ColCount { get; }
 
-	public GridSegment(T[,] sourceGrid, int x, int y, int width, int height)
+	public GridSegment(
+		T[,] sourceGrid,
+		int x, int y,
+		int width, int height)
+	{
+		Validate(sourceGrid, x, y, width, height);
+
+		_source = sourceGrid;
+		_x = x;
+		_y = y;
+		ColCount = width;
+		RowCount = height;
+	}
+
+	public GridSegment(
+		T[,] sourceGrid,
+		Rectangle<int> rect)
+		: this(sourceGrid, rect.X, rect.Y, rect.Width, rect.Height) { }
+
+	public static void Validate(
+		T[,] sourceGrid,
+		int x, int y,
+		int width, int height)
 	{
 		ArgumentNullException.ThrowIfNull(sourceGrid);
 
@@ -25,13 +47,14 @@ public readonly struct GridSegment<T> : IGrid<T>
 			throw new ArgumentOutOfRangeException(nameof(width));
 		if (height < 0 || height > sourceGrid.GetLength(1) - y)
 			throw new ArgumentOutOfRangeException(nameof(height));
-
-		_source = sourceGrid;
-		_x = x;
-		_y = y;
-		ColCount = width;
-		RowCount = height;
 	}
+
+	public static void Validate(
+		T[,] sourceGrid,
+		Rectangle<int> rect)
+		=> Validate(sourceGrid,
+			rect.X, rect.Y,
+			rect.Width, rect.Height);
 
 	public T this[int x, int y]
 	{
@@ -51,13 +74,20 @@ public readonly struct GridSegment<T> : IGrid<T>
 		}
 	}
 
-	public IGrid<T> GetSubGrid(int x, int y, int width = -1, int height = -1)
+	public GridSegment<T> GetSubGrid(
+		int x, int y,
+		int width = -1, int height = -1)
 	{
 		if (width == -1)
 			width = ColCount - x;
 		if (height == -1)
 			height = RowCount - y;
 
-		return new GridSegment<T>(_source, _x + x, _y + y, width, height);
+		return new(_source, _x + x, _y + y, width, height);
 	}
+
+	IGrid<T> IGrid<T>.GetSubGrid(
+		int x, int y,
+		int width, int height)
+		=> GetSubGrid(x, y, width, height);
 }

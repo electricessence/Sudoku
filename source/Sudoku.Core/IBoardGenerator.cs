@@ -1,8 +1,6 @@
 ﻿// Ignore Spelling: Sudoku rnd
 
-using System.Collections.Generic;
-
-namespace Sudoku;
+namespace Sudoku.Core;
 
 public interface IBoardGenerator
 {

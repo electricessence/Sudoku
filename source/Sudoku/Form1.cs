@@ -2,6 +2,8 @@
 
 #nullable disable
 
+using Sudoku.Core;
+
 namespace Sudoku;
 
 public partial class Form1 : Form

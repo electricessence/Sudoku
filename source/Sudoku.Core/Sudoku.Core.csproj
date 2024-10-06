@@ -4,13 +4,17 @@
 		<TargetFrameworks>net8.0</TargetFrameworks>
 		<LangVersion>latest</LangVersion>
 		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
 	</PropertyGroup>
 
 	<ItemGroup>
 	  <PackageReference Include="Open.Disposable.ObjectPools" Version="2.9.0" />
 	  <PackageReference Include="Open.RandomizationExtensions" Version="2.5.3" />
 	  <PackageReference Include="System.Memory" Version="4.5.5" />
-	  <PackageReference Include="Throw" Version="1.4.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\..\Sudoku.Models\Sudoku.Models.csproj" />
 	</ItemGroup>
 
 </Project>

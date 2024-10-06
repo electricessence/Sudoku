@@ -2,6 +2,7 @@
 using Spectre.Console;
 using Spectre.Console.Cli;
 using Sudoku.Core;
+using Sudoku.Models;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 

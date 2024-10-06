@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Sudoku;
+﻿namespace Sudoku.Core;
 
 //https://github.com/igortrofymov/SudokuGenerator
 
@@ -137,17 +134,13 @@ public class Puzzler(int numberOfSwaps)
 	public void FillBoard(ReadOnlySpan<char> game)
 	{
 		if (game.Length != 81)
-		{
 			throw new Exception($"Input game string should have length = 81, but was {game.Length}!");
-		}
 
 		for (int n = 0; n < 81; n++)
 		{
 			char c = game[n];
 			if (c is (< '1' or > '9') and not '.')
-			{
 				throw new Exception("Input game string should have values 0-9 and . only!");
-			}
 		}
 
 		for (int n = 0; n < 81; n++)
@@ -155,7 +148,7 @@ public class Puzzler(int numberOfSwaps)
 			char c = game[n];
 			int i = n / 9;
 			int j = n % 9;
-			_table[i, j] = c == '.' ? 0 : (c - '0');
+			_table[i, j] = c == '.' ? 0 : c - '0';
 		}
 	}
 

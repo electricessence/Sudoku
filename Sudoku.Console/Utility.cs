@@ -3,8 +3,8 @@ using Open.Collections;
 using Spectre.Console;
 using Spectre.Console.Rendering;
 using Sudoku.Core;
+using Sudoku.Models;
 using System.Numerics;
-using System.Runtime.CompilerServices;
 
 namespace Sudoku.Console;
 internal static class Utility

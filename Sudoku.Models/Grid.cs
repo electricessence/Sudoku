@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Sudoku.Core;
+namespace Sudoku.Models;
 public class Grid<T> : IGrid<T>
 {
 	protected T[,] Source { get; }
@@ -29,16 +29,20 @@ public class Grid<T> : IGrid<T>
 		set => Source[x, y] = value;
 	}
 
-	public GridSegment<T> GetSubGrid(int x, int y, int width = -1, int height = -1)
+	public GridSegment<T> GetSubGrid(
+		int x, int y,
+		int width = -1, int height = -1)
 	{
 		if (width == -1)
 			width = ColCount - x;
 		if (height == -1)
 			height = RowCount - y;
 
-		return new GridSegment<T>(Source, x, y, width, height);
+		return new(Source, x, y, width, height);
 	}
 
-	IGrid<T> IGrid<T>.GetSubGrid(int x, int y, int width, int height)
+	IGrid<T> IGrid<T>.GetSubGrid(
+		int x, int y,
+		int width, int height)
 		=> GetSubGrid(x, y, width, height);
 }

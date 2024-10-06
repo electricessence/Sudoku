@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Sudoku.Core;
-public abstract class GeneratorBase : IBoardGenerator
+﻿namespace Sudoku.Core;
+public abstract class GeneratorBase(Func<int, int, int> nextIntFunction) : IBoardGenerator
 {
-	protected Func<int, int, int> NextInt { get; }
-
-	protected GeneratorBase(Func<int, int, int> nextIntFunction)
-		=> NextInt = nextIntFunction;
+	protected Func<int, int, int> NextInt { get; } = nextIntFunction;
 
 	protected GeneratorBase(Random rnd)
 		: this(rnd.Next) { }

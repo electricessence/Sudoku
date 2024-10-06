@@ -2,9 +2,9 @@
 using Open.Collections;
 using Open.Disposable;
 using Sudoku.Core;
+using Sudoku.Models;
 using System.Buffers;
 using System.Diagnostics;
-using System.Linq;
 using System.Numerics;
 
 namespace Sudoku.Console;
@@ -208,7 +208,7 @@ public class Resolver
 		for (var i = 0; i < Size; i++)
 			span[i] = i + 1;
 
-		foreach(var m in memory.Permutations())
+		foreach (var m in memory.Permutations())
 			yield return Block.Create(m.Span);
 	}
 

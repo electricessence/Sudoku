@@ -1,13 +1,12 @@
 ﻿using CombinationElimination;
 using Open.Collections;
-using Open.Disposable;
 using Spectre.Console;
 using Spectre.Console.Cli;
 using Sudoku.Core;
+using Sudoku.Models;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Text;
 
 namespace Sudoku.Console.Commands;
 public class SubsetCombinations : AsyncCommand<SubsetCombinations.Settings>
@@ -110,12 +109,11 @@ public class SubsetCombinations : AsyncCommand<SubsetCombinations.Settings>
 		//	[x0y1Grid, nextDiagnalGrid],
 		//]));
 
-		
 		var localSet = Reset(new HashSet<int>[resolver.Square], resolver.Square);
 		AddRows(localSet, anchorBlock);
 		AddRows(localSet, x1y0);
 
-		var x2y0set = resolver.GetAdjacentOrderedSets(localSet).Select(s=>s.Single()).ToArray();
+		var x2y0set = resolver.GetAdjacentOrderedSets(localSet).Select(s => s.Single()).ToArray();
 		var x2y0 = Block.Create((ReadOnlySpan<Set>)x2y0set.AsSpan());
 		var x2y0Grid = x2y0.GroupGrid();
 
@@ -144,7 +142,6 @@ public class SubsetCombinations : AsyncCommand<SubsetCombinations.Settings>
 		// How many remaining column sets are there?
 		//var x2Rows = x
 		//var 
-
 
 		// Validate all posible group configurations.
 

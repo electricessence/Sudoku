@@ -1,8 +1,4 @@
-﻿using Sudoku.Core;
-using System;
-using System.Collections.Generic;
-
-namespace Sudoku;
+﻿namespace Sudoku.Core;
 
 // https://gist.github.com/fabiosoft/b41067106bebf1498399f4eb9826e4de
 

@@ -1,18 +1,11 @@
-﻿using System;
-using System.Buffers;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-
-namespace Sudoku.Core;
-public class Block : VectorBlock<int>
+﻿namespace Sudoku.Core;
+public class Block : ReadOnlyVectorBlock<int>
 {
 	public Block(ReadOnlyMemory<int> source)
 		: base(source) => Validate(source.Span);
 
 	private Block(ReadOnlySpan<int> source)
-		: base(Validate(source).ToArray().AsMemory()) {}
+		: base(Validate(source).ToArray().AsMemory()) { }
 
 	public static Block Create(ReadOnlySpan<int> source) => new(source);
 
@@ -36,7 +29,6 @@ public class Block : VectorBlock<int>
 
 		return source;
 	}
-
 
 	string? _familyID;
 	public string FamilyID

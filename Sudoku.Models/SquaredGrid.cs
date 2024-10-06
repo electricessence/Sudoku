@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Sudoku.Core;
+namespace Sudoku.Models;
 
 public class SquaredGrid<T> : Grid<T>
 {

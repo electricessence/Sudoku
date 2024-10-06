@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using Sudoku.Core;
+using System.Text;
 
 //https://sudoku.ironmonger.com/home/home.tpl <-- display puzzle difficulty! :)
 
@@ -1258,7 +1259,7 @@ public class Sudoku
 			hity++;
 		}
 
-		if (move == 1 && hity - 1 >= 0)
+		if (move == 1 && hity >= 1)
 		{
 			hity--;
 		}
@@ -1268,7 +1269,7 @@ public class Sudoku
 			hitx++;
 		}
 
-		if (move == 4 && hitx - 1 >= 0)
+		if (move == 4 && hitx >= 1)
 		{
 			hitx--;
 		}
